@@ -1,3 +1,4 @@
+import AdminPanel from "@/components/AdminPanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -661,6 +662,14 @@ export default function App() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  // Pathname-based admin routing
+  const [pathname, setPathname] = useState(() => window.location.pathname);
+  useEffect(() => {
+    const onPopState = () => setPathname(window.location.pathname);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+  if (pathname === "/Alexx") return <AdminPanel />;
 
   const filteredBrands = brands
     .map((brand) => ({
