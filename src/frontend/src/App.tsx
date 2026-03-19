@@ -6,14 +6,19 @@ import {
   Clock,
   Globe,
   HeartPulse,
+  Instagram,
+  Mail,
   MapPin,
   Menu,
+  MessageCircle,
   Package,
   Pill,
   Search,
+  Send,
   Shield,
   Truck,
   X,
+  Youtube,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -217,6 +222,59 @@ const brands: Brand[] = [
   },
 ];
 
+const contactLinks = [
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    value: "+44 7492 497781",
+    href: "https://wa.me/447492497781",
+    icon: MessageCircle,
+    color: "oklch(0.52 0.15 150)",
+    bg: "oklch(0.96 0.03 150)",
+    description: "Chat with us directly",
+  },
+  {
+    id: "email",
+    label: "Email",
+    value: "curepharmaa@outlook.com",
+    href: "mailto:curepharmaa@outlook.com",
+    icon: Mail,
+    color: "oklch(0.44 0.07 200)",
+    bg: "oklch(0.96 0.02 200)",
+    description: "Send us an email",
+  },
+  {
+    id: "youtube",
+    label: "YouTube",
+    value: "@curepharmaceuticals",
+    href: "https://youtube.com/@curepharmaceuticals?si=ZECq1dEdHW4nQCwX",
+    icon: Youtube,
+    color: "oklch(0.50 0.20 25)",
+    bg: "oklch(0.97 0.03 25)",
+    description: "Watch our channel",
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    value: "@cure_phramacy",
+    href: "https://www.instagram.com/cure_phramacy?igsh=MXIwOGlpYWNnOTY4bw==",
+    icon: Instagram,
+    color: "oklch(0.50 0.18 330)",
+    bg: "oklch(0.97 0.02 330)",
+    description: "Follow us on Instagram",
+  },
+  {
+    id: "telegram",
+    label: "Telegram",
+    value: "@CurePharma2",
+    href: "https://t.me/CurePharma2",
+    icon: Send,
+    color: "oklch(0.50 0.14 230)",
+    bg: "oklch(0.96 0.03 230)",
+    description: "Message us on Telegram",
+  },
+];
+
 // ────────────────────────────────────────
 // PRODUCT CARD
 // ────────────────────────────────────────
@@ -333,6 +391,7 @@ export default function App() {
     { label: "Our Catalog", href: "#catalog" },
     { label: "Shipping", href: "#shipping" },
     { label: "About Us", href: "#about" },
+    { label: "Contact", href: "#contact" },
   ];
 
   return (
@@ -883,6 +942,81 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        {/* ── CONTACT ── */}
+        <section
+          id="contact"
+          className="py-16 scroll-mt-20"
+          style={{
+            background:
+              "linear-gradient(135deg, oklch(0.96 0.02 200) 0%, oklch(0.97 0.015 220) 100%)",
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-2xl font-extrabold uppercase tracking-widest text-foreground mb-2">
+                Get In Touch
+              </h2>
+              <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+                Reach out to us via any of the channels below. We&apos;re
+                available to assist with orders, enquiries, and distribution
+                partnerships.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-4xl mx-auto">
+              {contactLinks.map((contact, i) => {
+                const Icon = contact.icon;
+                return (
+                  <motion.a
+                    key={contact.id}
+                    href={contact.href}
+                    target={contact.id !== "email" ? "_blank" : undefined}
+                    rel={
+                      contact.id !== "email" ? "noopener noreferrer" : undefined
+                    }
+                    data-ocid={`contact.${contact.id === "whatsapp" ? "primary_button" : "secondary_button"}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.07 }}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="group bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-all duration-300 p-6 flex flex-col items-start gap-4 cursor-pointer"
+                  >
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+                      style={{ background: contact.bg }}
+                    >
+                      <Icon
+                        className="w-6 h-6"
+                        style={{ color: contact.color }}
+                      />
+                    </div>
+                    <div className="space-y-1 min-w-0">
+                      <div className="text-xs font-extrabold uppercase tracking-widest text-muted-foreground">
+                        {contact.label}
+                      </div>
+                      <div
+                        className="text-sm font-bold break-all leading-snug"
+                        style={{ color: contact.color }}
+                      >
+                        {contact.value}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {contact.description}
+                      </div>
+                    </div>
+                  </motion.a>
+                );
+              })}
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* ── FOOTER ── */}
@@ -925,18 +1059,22 @@ export default function App() {
                 Quick Links
               </h4>
               <ul className="space-y-2">
-                {["Home", "Our Catalog", "Shipping & Delivery", "About Us"].map(
-                  (link) => (
-                    <li key={link}>
-                      <a
-                        href="#top"
-                        className="text-xs opacity-70 hover:opacity-100 transition-opacity"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ),
-                )}
+                {[
+                  { label: "Home", href: "#" },
+                  { label: "Our Catalog", href: "#catalog" },
+                  { label: "Shipping & Delivery", href: "#shipping" },
+                  { label: "About Us", href: "#about" },
+                  { label: "Contact", href: "#contact" },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="text-xs opacity-70 hover:opacity-100 transition-opacity"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -959,7 +1097,7 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Contact */}
+            {/* Distribution */}
             <div>
               <h4 className="text-xs font-extrabold uppercase tracking-widest mb-4 opacity-90">
                 Distribution
