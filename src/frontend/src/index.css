@@ -1,0 +1,93 @@
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Teal primary: #0B6D7A → oklch(0.44 0.07 200) */
+    --primary: 0.44 0.07 200;
+    --primary-foreground: 1 0 0;
+
+    /* Dark teal for hover */
+    --primary-dark: 0.36 0.06 200;
+
+    /* Background: white */
+    --background: 1 0 0;
+    --foreground: 0.12 0.005 240;
+
+    /* Card surface */
+    --card: 1 0 0;
+    --card-foreground: 0.12 0.005 240;
+
+    /* Section wash: #EAF6F8 */
+    --section-wash: 0.96 0.02 200;
+
+    /* Muted */
+    --muted: 0.96 0.01 220;
+    --muted-foreground: 0.45 0.02 220;
+
+    /* Secondary text: #5A666F */
+    --secondary: 0.95 0.01 220;
+    --secondary-foreground: 0.45 0.02 220;
+
+    /* Border: #D9E1E6 */
+    --border: 0.9 0.015 220;
+    --input: 0.9 0.015 220;
+    --ring: 0.44 0.07 200;
+
+    /* Price text: #0B5F7A */
+    --price: 0.4 0.07 210;
+
+    /* Accent */
+    --accent: 0.94 0.03 200;
+    --accent-foreground: 0.44 0.07 200;
+
+    /* Destructive */
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 1 0 0;
+
+    /* Popover */
+    --popover: 1 0 0;
+    --popover-foreground: 0.12 0.005 240;
+
+    --radius: 0.625rem;
+
+    /* Utility bar gradient stop 1: #0F6C7A */
+    --bar-start: 0.44 0.07 200;
+    /* Utility bar gradient stop 2: #2B6FB3 */
+    --bar-end: 0.45 0.1 240;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: oklch(var(--muted));
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(var(--primary));
+  border-radius: 3px;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
