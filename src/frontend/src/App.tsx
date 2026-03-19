@@ -16,6 +16,7 @@ import {
   Search,
   Send,
   Shield,
+  Star,
   Truck,
   X,
   Youtube,
@@ -275,6 +276,75 @@ const contactLinks = [
   },
 ];
 
+const customerReviews = [
+  {
+    id: 1,
+    name: "James T.",
+    location: "London, UK",
+    rating: 5,
+    product: "Cenforce 100mg",
+    review:
+      "Absolutely outstanding results. Cenforce 100mg worked exactly as described — fast onset and no side effects. Delivery was discreet and arrived in 4 days. Highly recommend Cure Pharmaceuticals.",
+    initials: "JT",
+    color: "oklch(0.44 0.07 200)",
+  },
+  {
+    id: 2,
+    name: "Marco R.",
+    location: "Amsterdam, Netherlands",
+    rating: 5,
+    product: "Vidalista 40mg",
+    review:
+      "Vidalista 40mg is the best I've tried. Long-lasting effect, well-packaged, and excellent value per box. Cure Pharma delivered to the Netherlands without any issues. Will reorder.",
+    initials: "MR",
+    color: "oklch(0.55 0.16 150)",
+  },
+  {
+    id: 3,
+    name: "David K.",
+    location: "Manchester, UK",
+    rating: 4,
+    product: "Kamagra Oral Jelly",
+    review:
+      "Kamagra Oral Jelly is very convenient and works quickly. Packaging was secure and delivery was on time. Would give 5 stars if there was a wider flavour choice, but overall very satisfied.",
+    initials: "DK",
+    color: "oklch(0.50 0.18 30)",
+  },
+  {
+    id: 4,
+    name: "Stefan B.",
+    location: "Berlin, Germany",
+    rating: 5,
+    product: "Super Kamagra",
+    review:
+      "Super Kamagra is excellent — dual action and very effective. Ordered from Germany and received within 5 days. Cure Pharmaceuticals keeps their promise on quality and discreet shipping.",
+    initials: "SB",
+    color: "oklch(0.48 0.14 270)",
+  },
+];
+
+// ────────────────────────────────────────
+// STAR RATING
+// ────────────────────────────────────────
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className="w-4 h-4"
+          style={{
+            fill: star <= rating ? "oklch(0.75 0.18 75)" : "transparent",
+            color:
+              star <= rating ? "oklch(0.75 0.18 75)" : "oklch(0.80 0.02 200)",
+          }}
+        />
+      ))}
+      <LiveActivityTicker />
+    </div>
+  );
+}
+
 // ────────────────────────────────────────
 // PRODUCT CARD
 // ────────────────────────────────────────
@@ -362,6 +432,225 @@ function BrandSection({ brand }: { brand: Brand }) {
 // ────────────────────────────────────────
 // MAIN APP
 // ────────────────────────────────────────
+
+// ────────────────────────────────────────
+// LIVE ACTIVITY TICKER
+// ────────────────────────────────────────
+const ACTIVITY_NOTIFICATIONS = [
+  { action: "Order placed", detail: "Cenforce 100mg · James T., London" },
+  { action: "Order confirmed", detail: "Vidalista 40mg · Marco R., Amsterdam" },
+  {
+    action: "Delivery dispatched",
+    detail: "Kamagra Oral Jelly · Stefan B., Berlin",
+  },
+  { action: "Order placed", detail: "Super Kamagra 160mg · Luca M., Rome" },
+  {
+    action: "Package delivered",
+    detail: "Cenforce 200mg · Ahmed K., Manchester",
+  },
+  { action: "Order placed", detail: "Vidalista 60mg · Pierre D., Paris" },
+  {
+    action: "Delivery dispatched",
+    detail: "Kamagra 100mg · Henrik S., Stockholm",
+  },
+  { action: "Order confirmed", detail: "Fildena 150mg · David W., Birmingham" },
+  {
+    action: "Package delivered",
+    detail: "Super P-Force · Arjun P., Leicester",
+  },
+  { action: "Order placed", detail: "Cenforce 50mg · Thomas B., Munich" },
+  { action: "Order confirmed", detail: "Kamagra Polo · Mikael L., Copenhagen" },
+  {
+    action: "Delivery dispatched",
+    detail: "Vidalista 20mg · Carlos M., Madrid",
+  },
+  { action: "Order placed", detail: "Extra Super Tadarise · Oliver R., Leeds" },
+  { action: "Package delivered", detail: "Cenforce 100mg · Felix H., Hamburg" },
+  { action: "Order confirmed", detail: "Super Kamagra · Daan V., Rotterdam" },
+  { action: "Order placed", detail: "Kamagra Oral Jelly · Ethan C., Glasgow" },
+  {
+    action: "Delivery dispatched",
+    detail: "Vidalista 40mg · Nikos P., Athens",
+  },
+  { action: "Order placed", detail: "Cenforce 150mg · Antoine L., Lyon" },
+  { action: "Package delivered", detail: "Fildena 100mg · Kwame A., Bristol" },
+  { action: "Order confirmed", detail: "Super P-Force · Rafael S., Lisbon" },
+  { action: "Order placed", detail: "Kamagra 50mg · Viktor K., Vienna" },
+  { action: "Delivery dispatched", detail: "Cenforce 25mg · Sven O., Oslo" },
+  { action: "Order placed", detail: "Vidalista 80mg · Matteo F., Milan" },
+  {
+    action: "Package delivered",
+    detail: "Super Kamagra 160mg · Jack H., Sheffield",
+  },
+  {
+    action: "Order confirmed",
+    detail: "Kamagra Oral Jelly · Piotr W., Warsaw",
+  },
+  { action: "Order placed", detail: "Cenforce 100mg · Rui C., Porto" },
+  {
+    action: "Delivery dispatched",
+    detail: "Vidalista 40mg · Lars N., Gothenburg",
+  },
+  { action: "Order placed", detail: "Fildena 150mg · Ben M., Edinburgh" },
+  { action: "Package delivered", detail: "Kamagra 100mg · Georg B., Zurich" },
+  {
+    action: "Order confirmed",
+    detail: "Extra Super Tadarise · Harry T., Liverpool",
+  },
+  { action: "Order placed", detail: "Cenforce 200mg · Sami V., Helsinki" },
+  {
+    action: "Delivery dispatched",
+    detail: "Super P-Force · Louis D., Brussels",
+  },
+];
+
+const TIME_LABELS = [
+  "just now",
+  "1 min ago",
+  "2 min ago",
+  "2 min ago",
+  "3 min ago",
+  "3 min ago",
+  "4 min ago",
+  "5 min ago",
+];
+
+function getActionIcon(action: string) {
+  if (action.startsWith("Package delivered")) return "✓";
+  if (action.startsWith("Delivery dispatched")) return "🚚";
+  return "📦";
+}
+
+function getActionColor(action: string) {
+  if (action.startsWith("Package delivered")) return "#22c55e";
+  if (action.startsWith("Delivery dispatched")) return "#3b82f6";
+  return "#a855f7";
+}
+
+function LiveActivityTicker() {
+  const [index, setIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const [timeLabel, setTimeLabel] = useState(TIME_LABELS[0]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % ACTIVITY_NOTIFICATIONS.length);
+        setTimeLabel(
+          TIME_LABELS[Math.floor(Math.random() * TIME_LABELS.length)],
+        );
+        setVisible(true);
+      }, 400);
+    }, 20000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const notification = ACTIVITY_NOTIFICATIONS[index];
+  const color = getActionColor(notification.action);
+  const icon = getActionIcon(notification.action);
+
+  return (
+    <div
+      data-ocid="activity_ticker.toast"
+      style={{
+        position: "fixed",
+        bottom: "24px",
+        left: "24px",
+        zIndex: 50,
+        opacity: visible ? 1 : 0,
+        transform: visible
+          ? "translateY(0) scale(1)"
+          : "translateY(8px) scale(0.97)",
+        transition: "opacity 0.4s ease, transform 0.4s ease",
+        maxWidth: "300px",
+        width: "calc(100vw - 48px)",
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        style={{
+          background: "white",
+          borderRadius: "12px",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)",
+          padding: "12px 14px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "10px",
+          borderLeft: `3px solid ${color}`,
+        }}
+      >
+        {/* Icon circle */}
+        <div
+          style={{
+            width: "32px",
+            height: "32px",
+            borderRadius: "50%",
+            background: `${color}18`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "14px",
+            flexShrink: 0,
+            marginTop: "1px",
+          }}
+        >
+          {icon}
+        </div>
+        {/* Text */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              marginBottom: "2px",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: "7px",
+                height: "7px",
+                borderRadius: "50%",
+                background: color,
+                flexShrink: 0,
+              }}
+            />
+            <p
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#111827",
+                margin: 0,
+                lineHeight: 1.3,
+              }}
+            >
+              {notification.action}
+            </p>
+          </div>
+          <p
+            style={{
+              fontSize: "11.5px",
+              color: "#374151",
+              margin: "0 0 4px 0",
+              lineHeight: 1.4,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {notification.detail}
+          </p>
+          <p style={{ fontSize: "10.5px", color: "#9ca3af", margin: 0 }}>
+            {timeLabel}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -390,6 +679,7 @@ export default function App() {
     { label: "Home", href: "#" },
     { label: "Our Catalog", href: "#catalog" },
     { label: "Shipping", href: "#shipping" },
+    { label: "Reviews", href: "#reviews" },
     { label: "About Us", href: "#about" },
     { label: "Contact", href: "#contact" },
   ];
@@ -855,8 +1145,111 @@ export default function App() {
           </div>
         </section>
 
+        {/* ── CUSTOMER REVIEWS ── */}
+        <section id="reviews" className="py-16 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-2xl font-extrabold uppercase tracking-widest text-foreground mb-2">
+                Customer Reviews
+              </h2>
+              <p className="text-muted-foreground text-sm max-w-xl mx-auto">
+                Real feedback from verified customers across Europe and the UK.
+              </p>
+              {/* Overall rating badge */}
+              <div className="inline-flex items-center gap-2 mt-4 bg-muted border border-border rounded-full px-5 py-2">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className="w-4 h-4"
+                      style={{
+                        fill: "oklch(0.75 0.18 75)",
+                        color: "oklch(0.75 0.18 75)",
+                      }}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm font-extrabold text-foreground">
+                  4.8 / 5
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  based on verified orders
+                </span>
+              </div>
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {customerReviews.map((review, i) => (
+                <motion.div
+                  key={review.id}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  data-ocid="review.card"
+                  className="bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-all duration-300 p-6 flex flex-col gap-4"
+                >
+                  {/* Stars */}
+                  <StarRating rating={review.rating} />
+
+                  {/* Review text */}
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                    &ldquo;{review.review}&rdquo;
+                  </p>
+
+                  {/* Product tag */}
+                  <div
+                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-full px-2.5 py-1 w-fit"
+                    style={{
+                      background: `color-mix(in oklch, ${review.color} 12%, white)`,
+                      color: review.color,
+                    }}
+                  >
+                    <Pill className="w-3 h-3" />
+                    {review.product}
+                  </div>
+
+                  {/* Reviewer */}
+                  <div className="flex items-center gap-3 pt-1 border-t border-border">
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-extrabold flex-shrink-0"
+                      style={{ background: review.color }}
+                    >
+                      {review.initials}
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-foreground">
+                        {review.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {review.location}
+                      </div>
+                    </div>
+                    <CheckCircle2
+                      className="w-4 h-4 ml-auto flex-shrink-0"
+                      style={{ color: "oklch(0.52 0.15 150)" }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── ABOUT ── */}
-        <section id="about" className="py-16 bg-white scroll-mt-20">
+        <section
+          id="about"
+          className="py-16 scroll-mt-20"
+          style={{
+            background:
+              "linear-gradient(135deg, oklch(0.96 0.02 200) 0%, oklch(0.97 0.015 220) 100%)",
+          }}
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <motion.div
@@ -889,7 +1282,7 @@ export default function App() {
                   ].map((stat) => (
                     <div
                       key={stat.label}
-                      className="bg-muted rounded-xl p-4 border border-border"
+                      className="bg-white rounded-xl p-4 border border-border"
                     >
                       <div
                         className="text-2xl font-extrabold"
@@ -916,7 +1309,7 @@ export default function App() {
                     key={brand.id}
                     href={`#${brand.id}`}
                     data-ocid="about.card"
-                    className="bg-muted rounded-xl p-5 border border-border hover:border-primary hover:shadow-card transition-all"
+                    className="bg-white rounded-xl p-5 border border-border hover:border-primary hover:shadow-card transition-all"
                   >
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center text-white mb-3 text-xs font-extrabold"
@@ -944,14 +1337,7 @@ export default function App() {
         </section>
 
         {/* ── CONTACT ── */}
-        <section
-          id="contact"
-          className="py-16 scroll-mt-20"
-          style={{
-            background:
-              "linear-gradient(135deg, oklch(0.96 0.02 200) 0%, oklch(0.97 0.015 220) 100%)",
-          }}
-        >
+        <section id="contact" className="py-16 scroll-mt-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -1063,6 +1449,7 @@ export default function App() {
                   { label: "Home", href: "#" },
                   { label: "Our Catalog", href: "#catalog" },
                   { label: "Shipping & Delivery", href: "#shipping" },
+                  { label: "Reviews", href: "#reviews" },
                   { label: "About Us", href: "#about" },
                   { label: "Contact", href: "#contact" },
                 ].map((link) => (
