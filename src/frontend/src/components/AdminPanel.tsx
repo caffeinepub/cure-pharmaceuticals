@@ -12,8 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, EyeOff, LogOut, Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, LogOut, Plus, Trash2, Users } from "lucide-react";
 import { useState } from "react";
+import { useGetAllUsers } from "../hooks/useQueries";
 
 // ────────────────────────────────────────
 // Types
@@ -757,6 +758,86 @@ function NotificationsTab() {
 // ────────────────────────────────────────
 // Main Admin Panel
 // ────────────────────────────────────────
+
+// ────────────────────────────────────────
+// Users Tab
+// ────────────────────────────────────────
+function UsersTab() {
+  const { data: users, isLoading } = useGetAllUsers();
+
+  function formatDate(ts: bigint): string {
+    const ms = Number(ts / 1_000_000n);
+    return new Date(ms).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Users className="w-4 h-4" />
+        <span>
+          {isLoading ? "Loading…" : `${users?.length ?? 0} registered user(s)`}
+        </span>
+      </div>
+      <Table data-ocid="admin.table">
+        <TableHeader>
+          <TableRow>
+            <TableHead>#</TableHead>
+            <TableHead>Username</TableHead>
+            <TableHead>Principal</TableHead>
+            <TableHead>Registered</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow data-ocid="admin.loading_state">
+              <TableCell
+                colSpan={4}
+                className="text-center text-muted-foreground py-6"
+              >
+                Loading users...
+              </TableCell>
+            </TableRow>
+          ) : users && users.length > 0 ? (
+            users.map(([principal, profile], i) => (
+              <TableRow
+                key={principal.toString()}
+                data-ocid={`admin.item.${i + 1}`}
+              >
+                <TableCell className="text-muted-foreground text-sm">
+                  {i + 1}
+                </TableCell>
+                <TableCell className="font-medium">
+                  {profile.username}
+                </TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground max-w-[160px] truncate">
+                  {principal.toString()}
+                </TableCell>
+                <TableCell className="text-sm">
+                  {formatDate(profile.registrationDate)}
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                className="text-center text-muted-foreground py-8"
+                data-ocid="admin.empty_state"
+              >
+                No registered users yet.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 export default function AdminPanel() {
   const [authenticated, setAuthenticated] = useState(false);
 
@@ -812,6 +893,9 @@ export default function AdminPanel() {
             >
               Notifications
             </TabsTrigger>
+            <TabsTrigger value="users" data-ocid="admin.users_tab">
+              Users
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
@@ -845,6 +929,17 @@ export default function AdminPanel() {
               </CardHeader>
               <CardContent>
                 <NotificationsTab />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Registered Users</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <UsersTab />
               </CardContent>
             </Card>
           </TabsContent>

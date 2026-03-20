@@ -1,6 +1,10 @@
+import AccountPage from "@/components/AccountPage";
 import AdminPanel from "@/components/AdminPanel";
+import AuthButton from "@/components/AuthButton";
+import RegistrationModal from "@/components/RegistrationModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
 import {
   CheckCircle2,
   ChevronRight,
@@ -24,6 +28,8 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useInternetIdentity } from "./hooks/useInternetIdentity";
+import { useCallerUserProfile } from "./hooks/useQueries";
 
 // ────────────────────────────────────────
 // DATA
@@ -341,7 +347,6 @@ function StarRating({ rating }: { rating: number }) {
           }}
         />
       ))}
-      <LiveActivityTicker />
     </div>
   );
 }
@@ -669,7 +674,23 @@ export default function App() {
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
+  const { identity } = useInternetIdentity();
+  const { data: profile, isLoading: profileLoading } = useCallerUserProfile();
+
+  const navigateAccount = () => {
+    window.history.pushState({}, "", "/account");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+  const navigateHome = () => {
+    window.history.pushState({}, "", "/");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
   if (pathname === "/Alexx") return <AdminPanel />;
+  if (pathname === "/account") return <AccountPage onBack={navigateHome} />;
+
+  // Show registration modal if logged in but no profile yet
+  const showRegistration = !!identity && !profileLoading && profile === null;
 
   const filteredBrands = brands
     .map((brand) => ({
@@ -753,7 +774,7 @@ export default function App() {
               ))}
             </nav>
 
-            {/* Search + Mobile toggle */}
+            {/* Search + Auth + Mobile toggle */}
             <div className="flex items-center gap-2">
               <div className="hidden sm:flex items-center gap-2 bg-muted border border-border rounded-lg px-3 py-1.5">
                 <Search className="w-3.5 h-3.5 text-muted-foreground" />
@@ -765,6 +786,9 @@ export default function App() {
                   data-ocid="catalog.search_input"
                   className="bg-transparent text-sm outline-none w-36 placeholder:text-muted-foreground text-foreground"
                 />
+              </div>
+              <div className="hidden md:block">
+                <AuthButton onNavigateAccount={navigateAccount} />
               </div>
               <button
                 type="button"
@@ -816,6 +840,14 @@ export default function App() {
                       className="bg-transparent text-sm outline-none flex-1 placeholder:text-muted-foreground text-foreground"
                     />
                   </div>
+                </div>
+                <div className="pt-2 pb-2">
+                  <AuthButton
+                    onNavigateAccount={() => {
+                      setMobileMenuOpen(false);
+                      navigateAccount();
+                    }}
+                  />
                 </div>
               </div>
             </motion.div>
@@ -1538,6 +1570,9 @@ export default function App() {
           </div>
         </div>
       </footer>
+      <LiveActivityTicker />
+      <RegistrationModal open={showRegistration} />
+      <Toaster richColors position="top-right" />
     </div>
   );
 }

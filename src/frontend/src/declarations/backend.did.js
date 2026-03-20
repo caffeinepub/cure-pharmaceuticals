@@ -8,20 +8,28 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const PricingRegion = IDL.Variant({
-  'uk' : IDL.Float64,
-  'europe' : IDL.Float64,
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
 });
 export const PharmaceuticalProduct = IDL.Record({
   'dosage' : IDL.Text,
   'name' : IDL.Text,
+  'priceEurope' : IDL.Float64,
+  'priceUk' : IDL.Float64,
   'units' : IDL.Nat,
   'brand' : IDL.Text,
-  'price' : PricingRegion,
   'packaging' : IDL.Text,
+});
+export const Time = IDL.Int;
+export const UserProfile = IDL.Record({
+  'username' : IDL.Text,
+  'registrationDate' : Time,
 });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addProduct' : IDL.Func(
       [
         IDL.Text,
@@ -35,32 +43,56 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'getAllProducts' : IDL.Func([], [IDL.Vec(PharmaceuticalProduct)], ['query']),
+  'getAllUsers' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
+      ['query'],
+    ),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getProduct' : IDL.Func([IDL.Text], [PharmaceuticalProduct], ['query']),
   'getProductsByBrand' : IDL.Func(
       [IDL.Text],
       [IDL.Vec(PharmaceuticalProduct)],
       ['query'],
     ),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'registerUser' : IDL.Func([IDL.Text], [], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const PricingRegion = IDL.Variant({
-    'uk' : IDL.Float64,
-    'europe' : IDL.Float64,
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
   });
   const PharmaceuticalProduct = IDL.Record({
     'dosage' : IDL.Text,
     'name' : IDL.Text,
+    'priceEurope' : IDL.Float64,
+    'priceUk' : IDL.Float64,
     'units' : IDL.Nat,
     'brand' : IDL.Text,
-    'price' : PricingRegion,
     'packaging' : IDL.Text,
+  });
+  const Time = IDL.Int;
+  const UserProfile = IDL.Record({
+    'username' : IDL.Text,
+    'registrationDate' : Time,
   });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addProduct' : IDL.Func(
         [
           IDL.Text,
@@ -74,17 +106,33 @@ export const idlFactory = ({ IDL }) => {
         [],
         [],
       ),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'getAllProducts' : IDL.Func(
         [],
         [IDL.Vec(PharmaceuticalProduct)],
         ['query'],
       ),
+    'getAllUsers' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
+        ['query'],
+      ),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getProduct' : IDL.Func([IDL.Text], [PharmaceuticalProduct], ['query']),
     'getProductsByBrand' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(PharmaceuticalProduct)],
         ['query'],
       ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'registerUser' : IDL.Func([IDL.Text], [], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   });
 };
 

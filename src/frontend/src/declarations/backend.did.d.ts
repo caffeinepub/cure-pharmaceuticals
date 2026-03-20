@@ -13,21 +13,34 @@ import type { Principal } from '@icp-sdk/core/principal';
 export interface PharmaceuticalProduct {
   'dosage' : string,
   'name' : string,
+  'priceEurope' : number,
+  'priceUk' : number,
   'units' : bigint,
   'brand' : string,
-  'price' : PricingRegion,
   'packaging' : string,
 }
-export type PricingRegion = { 'uk' : number } |
-  { 'europe' : number };
+export type Time = bigint;
+export interface UserProfile { 'username' : string, 'registrationDate' : Time }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addProduct' : ActorMethod<
     [string, string, string, number, number, string, bigint],
     undefined
   >,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'getAllProducts' : ActorMethod<[], Array<PharmaceuticalProduct>>,
+  'getAllUsers' : ActorMethod<[], Array<[Principal, UserProfile]>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getProduct' : ActorMethod<[string], PharmaceuticalProduct>,
   'getProductsByBrand' : ActorMethod<[string], Array<PharmaceuticalProduct>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'registerUser' : ActorMethod<[string], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
