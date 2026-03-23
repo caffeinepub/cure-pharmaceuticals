@@ -12,9 +12,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, EyeOff, LogOut, Plus, Trash2, Users } from "lucide-react";
-import { useState } from "react";
-import { useGetAllUsers } from "../hooks/useQueries";
+import {
+  Edit2,
+  Eye,
+  EyeOff,
+  ImagePlus,
+  LogOut,
+  Plus,
+  ShoppingBag,
+  Trash2,
+  Users,
+  X,
+} from "lucide-react";
+import { useRef, useState } from "react";
+import { useGetAllOrders, useGetAllUsers } from "../hooks/useQueries";
 
 // ────────────────────────────────────────
 // Types
@@ -26,6 +37,11 @@ interface AdminProduct {
   price: number;
   packaging: string;
   count: string;
+  strength: string;
+  manufacturedBy: string;
+  form: string;
+  packSize: string;
+  images: string[]; // base64 data URLs, max 3
 }
 
 interface AdminReview {
@@ -54,6 +70,11 @@ const initialProducts: AdminProduct[] = [
     price: 55,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "50mg Sildenafil Citrate",
+    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Cenforce",
@@ -62,6 +83,11 @@ const initialProducts: AdminProduct[] = [
     price: 60,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "100mg Sildenafil Citrate",
+    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Cenforce",
@@ -70,6 +96,11 @@ const initialProducts: AdminProduct[] = [
     price: 65,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "150mg Sildenafil Citrate",
+    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Cenforce",
@@ -78,6 +109,11 @@ const initialProducts: AdminProduct[] = [
     price: 70,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "200mg Sildenafil Citrate",
+    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Vidalista",
@@ -86,6 +122,11 @@ const initialProducts: AdminProduct[] = [
     price: 55,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "20mg Tadalafil",
+    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Vidalista",
@@ -94,6 +135,11 @@ const initialProducts: AdminProduct[] = [
     price: 60,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "40mg Tadalafil",
+    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Vidalista",
@@ -102,6 +148,11 @@ const initialProducts: AdminProduct[] = [
     price: 65,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "60mg Tadalafil",
+    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Kamagra",
@@ -110,6 +161,11 @@ const initialProducts: AdminProduct[] = [
     price: 55,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "100mg Sildenafil Citrate",
+    manufacturedBy: "Ajanta Pharma Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "4 Tablets",
+    images: [],
   },
   {
     brand: "Kamagra",
@@ -118,6 +174,11 @@ const initialProducts: AdminProduct[] = [
     price: 60,
     packaging: "1×7 Box",
     count: "7 Sachets",
+    strength: "100mg Sildenafil Citrate",
+    manufacturedBy: "Ajanta Pharma Ltd.",
+    form: "Oral Jelly Sachet",
+    packSize: "7 Sachets",
+    images: [],
   },
   {
     brand: "Kamagra",
@@ -126,6 +187,11 @@ const initialProducts: AdminProduct[] = [
     price: 50,
     packaging: "1×4 Strip",
     count: "4 Tablets",
+    strength: "100mg Sildenafil Citrate",
+    manufacturedBy: "Ajanta Pharma Ltd.",
+    form: "Chewable Tablet",
+    packSize: "4 Tablets",
+    images: [],
   },
   {
     brand: "Kamagra",
@@ -134,6 +200,11 @@ const initialProducts: AdminProduct[] = [
     price: 75,
     packaging: "4×4 Blister",
     count: "16 Tablets",
+    strength: "100mg Sildenafil + 60mg Dapoxetine",
+    manufacturedBy: "Ajanta Pharma Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "4 Tablets",
+    images: [],
   },
   {
     brand: "Fildena",
@@ -142,6 +213,11 @@ const initialProducts: AdminProduct[] = [
     price: 55,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "100mg Sildenafil Citrate",
+    manufacturedBy: "Fortune Healthcare Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Fildena",
@@ -150,6 +226,11 @@ const initialProducts: AdminProduct[] = [
     price: 65,
     packaging: "10×10 Blister",
     count: "100 Tablets",
+    strength: "150mg Sildenafil Citrate",
+    manufacturedBy: "Fortune Healthcare Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "10 Tablets",
+    images: [],
   },
   {
     brand: "Fildena",
@@ -158,6 +239,11 @@ const initialProducts: AdminProduct[] = [
     price: 75,
     packaging: "4×4 Blister",
     count: "16 Tablets",
+    strength: "100mg Sildenafil + 60mg Dapoxetine",
+    manufacturedBy: "Sunrise Remedies Pvt. Ltd.",
+    form: "Film-Coated Tablet",
+    packSize: "4 Tablets",
+    images: [],
   },
   {
     brand: "Lovegra",
@@ -166,6 +252,11 @@ const initialProducts: AdminProduct[] = [
     price: 65,
     packaging: "1×7 Box",
     count: "7 Sachets",
+    strength: "100mg Sildenafil Citrate",
+    manufacturedBy: "Sunrise Remedies Pvt. Ltd.",
+    form: "Oral Jelly Sachet",
+    packSize: "7 Sachets",
+    images: [],
   },
 ];
 
@@ -358,95 +449,383 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
 }
 
 // ────────────────────────────────────────
-// Products Tab
+// Image Upload Slot
 // ────────────────────────────────────────
-function ProductsTab() {
-  const [products, setProducts] = useState<AdminProduct[]>(initialProducts);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState("");
+function ImageSlot({
+  label,
+  image,
+  onUpload,
+  onRemove,
+}: {
+  label: string;
+  image: string | undefined;
+  onUpload: (dataUrl: string) => void;
+  onRemove: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const startEdit = (i: number) => {
-    setEditingIndex(i);
-    setEditValue(String(products[i].price));
-  };
-
-  const saveEdit = (i: number) => {
-    const parsed = Number.parseFloat(editValue);
-    if (!Number.isNaN(parsed) && parsed > 0) {
-      setProducts((prev) =>
-        prev.map((p, idx) => (idx === i ? { ...p, price: parsed } : p)),
-      );
-    }
-    setEditingIndex(null);
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") onUpload(reader.result);
+    };
+    reader.readAsDataURL(file);
+    // reset so same file can be re-uploaded
+    e.target.value = "";
   };
 
   return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      {image ? (
+        <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-muted">
+          <img src={image} alt={label} className="w-full h-full object-cover" />
+          <button
+            type="button"
+            onClick={onRemove}
+            className="absolute top-1 right-1 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-700 transition-colors"
+            data-ocid="products.delete_button"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="w-full aspect-video rounded-lg border-2 border-dashed border-teal-300 bg-teal-50/50 hover:bg-teal-100/50 transition-colors flex flex-col items-center justify-center gap-1 text-teal-600"
+          data-ocid="products.upload_button"
+        >
+          <ImagePlus className="w-5 h-5" />
+          <span className="text-xs">Upload image</span>
+        </button>
+      )}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFile}
+      />
+    </div>
+  );
+}
+
+// ────────────────────────────────────────
+// Products Tab
+// ────────────────────────────────────────
+const EMPTY_FORM: AdminProduct = {
+  brand: "",
+  name: "",
+  dosage: "",
+  price: 0,
+  packaging: "",
+  count: "",
+  strength: "",
+  manufacturedBy: "",
+  form: "",
+  packSize: "",
+  images: [],
+};
+
+function ProductsTab() {
+  const [products, setProducts] = useState<AdminProduct[]>(initialProducts);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState<AdminProduct>(EMPTY_FORM);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
+  const openAdd = () => {
+    setFormData(EMPTY_FORM);
+    setEditingIndex(null);
+    setEditorOpen(true);
+  };
+
+  const openEdit = (i: number) => {
+    setFormData({ ...products[i] });
+    setEditingIndex(i);
+    setEditorOpen(true);
+  };
+
+  const closeEditor = () => {
+    setEditorOpen(false);
+    setEditingIndex(null);
+    setFormData(EMPTY_FORM);
+  };
+
+  const saveProduct = () => {
+    if (!formData.brand.trim() || !formData.name.trim()) return;
+    if (editingIndex !== null) {
+      setProducts((prev) =>
+        prev.map((p, i) => (i === editingIndex ? { ...formData } : p)),
+      );
+    } else {
+      setProducts((prev) => [...prev, { ...formData }]);
+    }
+    closeEditor();
+  };
+
+  const confirmDelete = (i: number) => {
+    setDeleteConfirm(i);
+  };
+
+  const doDelete = () => {
+    if (deleteConfirm !== null) {
+      setProducts((prev) => prev.filter((_, i) => i !== deleteConfirm));
+      setDeleteConfirm(null);
+      if (editorOpen && editingIndex === deleteConfirm) closeEditor();
+    }
+  };
+
+  const setImage = (slot: number, dataUrl: string) => {
+    const imgs = [...(formData.images || []), "", "", ""].slice(0, 3);
+    imgs[slot] = dataUrl;
+    setFormData((f) => ({ ...f, images: imgs }));
+  };
+
+  const removeImage = (slot: number) => {
+    const imgs = [...(formData.images || []), "", "", ""].slice(0, 3);
+    imgs[slot] = "";
+    setFormData((f) => ({ ...f, images: imgs }));
+  };
+
+  const field = (key: keyof AdminProduct, label: string, type = "text") => (
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      <Input
+        type={type}
+        value={String(formData[key])}
+        onChange={(e) =>
+          setFormData((f) => ({
+            ...f,
+            [key]: type === "number" ? Number(e.target.value) : e.target.value,
+          }))
+        }
+        className="h-8 text-sm"
+        data-ocid="products.input"
+      />
+    </div>
+  );
+
+  const imgs = [...(formData.images || []), "", "", ""].slice(0, 3);
+
+  return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Click any price to edit it inline.
-      </p>
-      <div className="rounded-lg border overflow-hidden">
-        <Table data-ocid="products.table">
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead>Brand</TableHead>
-              <TableHead>Product</TableHead>
-              <TableHead>Dosage</TableHead>
-              <TableHead>Price (€)</TableHead>
-              <TableHead>Packaging</TableHead>
-              <TableHead>Count</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.map((p, i) => (
-              <TableRow
-                key={`${p.brand}-${p.name}-${p.dosage}`}
-                data-ocid={`products.item.${i + 1}`}
-              >
-                <TableCell>
-                  <Badge variant="outline" className="text-xs font-semibold">
-                    {p.brand}
-                  </Badge>
-                </TableCell>
-                <TableCell className="font-medium text-sm">{p.name}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {p.dosage}
-                </TableCell>
-                <TableCell>
-                  {editingIndex === i ? (
-                    <Input
-                      data-ocid="products.input"
-                      className="w-24 h-7 text-sm"
-                      value={editValue}
-                      autoFocus
-                      onChange={(e) => setEditValue(e.target.value)}
-                      onBlur={() => saveEdit(i)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") saveEdit(i);
-                        if (e.key === "Escape") setEditingIndex(null);
-                      }}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => startEdit(i)}
-                      className="text-sm font-semibold text-teal-600 hover:text-teal-800 hover:underline transition-colors cursor-pointer"
-                    >
-                      €{p.price}
-                    </button>
-                  )}
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {p.packaging}
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {p.count}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {products.length} product{products.length !== 1 ? "s" : ""}
+        </p>
+        <Button
+          data-ocid="products.open_modal_button"
+          size="sm"
+          className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5"
+          onClick={openAdd}
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Product
+        </Button>
       </div>
+
+      {/* Delete Confirmation */}
+      {deleteConfirm !== null && (
+        <div
+          data-ocid="products.dialog"
+          className="p-4 rounded-lg border border-destructive/30 bg-destructive/5 flex items-center justify-between gap-3"
+        >
+          <p className="text-sm text-destructive font-medium">
+            Delete «{products[deleteConfirm]?.name}{" "}
+            {products[deleteConfirm]?.dosage}»? This cannot be undone.
+          </p>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button
+              data-ocid="products.cancel_button"
+              size="sm"
+              variant="ghost"
+              onClick={() => setDeleteConfirm(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              data-ocid="products.confirm_button"
+              size="sm"
+              variant="destructive"
+              onClick={doDelete}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Product list */}
+      <div className="space-y-2" data-ocid="products.list">
+        {products.map((p, i) => (
+          <div
+            key={`${p.brand}-${p.name}-${p.dosage}-${i}`}
+            data-ocid={`products.item.${i + 1}`}
+            className="group flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+          >
+            {/* Thumbnail */}
+            {p.images?.[0] ? (
+              <img
+                src={p.images[0]}
+                alt={p.name}
+                className="w-10 h-10 rounded object-cover flex-shrink-0 border border-border"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded bg-teal-100 flex items-center justify-center flex-shrink-0 border border-teal-200">
+                <span className="text-teal-600 text-xs font-bold">
+                  {p.brand.slice(0, 2).toUpperCase()}
+                </span>
+              </div>
+            )}
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge
+                  variant="outline"
+                  className="text-xs font-semibold border-teal-300 text-teal-700"
+                >
+                  {p.brand}
+                </Badge>
+                <span className="text-sm font-medium">
+                  {p.name} {p.dosage}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  €{p.price}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                {p.form} · {p.strength}
+              </p>
+            </div>
+
+            <div className="flex gap-1.5 flex-shrink-0">
+              <Button
+                data-ocid={`products.edit_button.${i + 1}`}
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-teal-600 hover:text-teal-800 hover:bg-teal-50"
+                onClick={() => openEdit(i)}
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                data-ocid={`products.delete_button.${i + 1}`}
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => confirmDelete(i)}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {products.length === 0 && (
+          <div
+            data-ocid="products.empty_state"
+            className="text-center py-12 text-muted-foreground text-sm"
+          >
+            No products yet. Add the first one!
+          </div>
+        )}
+      </div>
+
+      {/* Product Editor */}
+      {editorOpen && (
+        <Card
+          data-ocid="products.panel"
+          className="border-teal-200 bg-teal-50/30 mt-4"
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">
+                {editingIndex !== null ? "Edit Product" : "Add New Product"}
+              </CardTitle>
+              <Button
+                data-ocid="products.close_button"
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0"
+                onClick={closeEditor}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {/* Basic Info */}
+            <div>
+              <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-3">
+                Basic Information
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {field("brand", "Brand")}
+                {field("name", "Product Name")}
+                {field("dosage", "Dosage")}
+                {field("price", "Price (€)", "number")}
+                {field("packaging", "Packaging")}
+                {field("count", "Count")}
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-3">
+                Description
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {field("strength", "Strength")}
+                {field("manufacturedBy", "Manufactured By")}
+                {field("form", "Form")}
+                {field("packSize", "Pack Size")}
+              </div>
+            </div>
+
+            {/* Images */}
+            <div>
+              <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-3">
+                Product Images (up to 3)
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {([0, 1, 2] as const).map((slot) => (
+                  <ImageSlot
+                    key={slot}
+                    label={`Image ${slot + 1}`}
+                    image={imgs[slot] || undefined}
+                    onUpload={(url) => setImage(slot, url)}
+                    onRemove={() => removeImage(slot)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 justify-end pt-2 border-t border-teal-200">
+              <Button
+                data-ocid="products.cancel_button"
+                size="sm"
+                variant="ghost"
+                onClick={closeEditor}
+              >
+                Cancel
+              </Button>
+              <Button
+                data-ocid="products.save_button"
+                size="sm"
+                className="bg-teal-600 hover:bg-teal-700 text-white"
+                onClick={saveProduct}
+              >
+                Save Product
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
@@ -756,8 +1135,92 @@ function NotificationsTab() {
 }
 
 // ────────────────────────────────────────
-// Main Admin Panel
+// Orders Tab
 // ────────────────────────────────────────
+function OrdersTab() {
+  const { data: orders, isLoading } = useGetAllOrders();
+
+  function formatDate(ts: bigint): string {
+    const ms = Number(ts / 1_000_000n);
+    return new Date(ms).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <ShoppingBag className="w-4 h-4" />
+        <span>
+          {isLoading ? "Loading\u2026" : `${orders?.length ?? 0} order(s)`}
+        </span>
+      </div>
+      <Table data-ocid="admin.table">
+        <TableHeader>
+          <TableRow>
+            <TableHead>#</TableHead>
+            <TableHead>Order ID</TableHead>
+            <TableHead>Customer</TableHead>
+            <TableHead>Items</TableHead>
+            <TableHead>Total</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Date</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow data-ocid="admin.loading_state">
+              <TableCell
+                colSpan={7}
+                className="text-center text-muted-foreground py-6"
+              >
+                Loading orders...
+              </TableCell>
+            </TableRow>
+          ) : orders && orders.length > 0 ? (
+            orders.map((order, i) => (
+              <TableRow key={order.orderId} data-ocid={`admin.item.${i + 1}`}>
+                <TableCell className="text-muted-foreground text-sm">
+                  {i + 1}
+                </TableCell>
+                <TableCell className="font-mono text-xs max-w-[120px] truncate">
+                  {order.orderId}
+                </TableCell>
+                <TableCell className="font-medium">{`${order.customerUsername || order.customerId.toString().slice(0, 12)}...`}</TableCell>
+                <TableCell className="text-sm">
+                  {order.items.length} item(s)
+                </TableCell>
+                <TableCell className="font-semibold">
+                  \u20ac{order.total.toFixed(2)}
+                </TableCell>
+                <TableCell>
+                  <Badge className="bg-teal-100 text-teal-800 border-teal-200 text-xs">
+                    {order.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm">
+                  {formatDate(order.createdAt)}
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={7}
+                className="text-center text-muted-foreground py-8"
+                data-ocid="admin.empty_state"
+              >
+                No orders placed yet.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
 
 // ────────────────────────────────────────
 // Users Tab
@@ -779,7 +1242,9 @@ function UsersTab() {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Users className="w-4 h-4" />
         <span>
-          {isLoading ? "Loading…" : `${users?.length ?? 0} registered user(s)`}
+          {isLoading
+            ? "Loading\u2026"
+            : `${users?.length ?? 0} registered user(s)`}
         </span>
       </div>
       <Table data-ocid="admin.table">
@@ -896,6 +1361,9 @@ export default function AdminPanel() {
             <TabsTrigger value="users" data-ocid="admin.users_tab">
               Users
             </TabsTrigger>
+            <TabsTrigger value="orders" data-ocid="admin.orders_tab">
+              Orders
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
@@ -929,6 +1397,17 @@ export default function AdminPanel() {
               </CardHeader>
               <CardContent>
                 <NotificationsTab />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="orders">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Customer Orders</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <OrdersTab />
               </CardContent>
             </Card>
           </TabsContent>

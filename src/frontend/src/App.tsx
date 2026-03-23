@@ -26,8 +26,13 @@ import {
   X,
   Youtube,
 } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import CartPage from "./components/CartPage";
+import CheckoutPage from "./components/CheckoutPage";
+import OrderConfirmationPage from "./components/OrderConfirmationPage";
+import { CartProvider, useCart } from "./contexts/CartContext";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useCallerUserProfile } from "./hooks/useQueries";
 
@@ -42,6 +47,11 @@ interface Product {
   count: string;
   type: "tablet" | "jelly" | "sachet";
   image: string;
+  strength?: string;
+  manufacturedBy?: string;
+  form?: string;
+  packSize?: string;
+  images?: string[];
 }
 
 interface Brand {
@@ -354,7 +364,11 @@ function StarRating({ rating }: { rating: number }) {
 // ────────────────────────────────────────
 // PRODUCT CARD
 // ────────────────────────────────────────
-function ProductCard({ product, index }: { product: Product; index: number }) {
+function ProductCard({
+  product,
+  index,
+  onAddToCart,
+}: { product: Product; index: number; onAddToCart: (p: Product) => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -389,6 +403,44 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           <Pill className="w-3.5 h-3.5 flex-shrink-0" />
           <span>{product.count}</span>
         </div>
+        {(product.strength || product.manufacturedBy || product.form) && (
+          <div className="grid grid-cols-1 gap-0.5 text-xs border-t border-border pt-2">
+            {product.strength && (
+              <div className="flex gap-1">
+                <span className="text-muted-foreground font-medium w-20 flex-shrink-0">
+                  Strength:
+                </span>
+                <span className="text-foreground/80">{product.strength}</span>
+              </div>
+            )}
+            {product.manufacturedBy && (
+              <div className="flex gap-1">
+                <span className="text-muted-foreground font-medium w-20 flex-shrink-0">
+                  Mfr by:
+                </span>
+                <span className="text-foreground/80">
+                  {product.manufacturedBy}
+                </span>
+              </div>
+            )}
+            {product.form && (
+              <div className="flex gap-1">
+                <span className="text-muted-foreground font-medium w-20 flex-shrink-0">
+                  Form:
+                </span>
+                <span className="text-foreground/80">{product.form}</span>
+              </div>
+            )}
+            {product.packSize && (
+              <div className="flex gap-1">
+                <span className="text-muted-foreground font-medium w-20 flex-shrink-0">
+                  Pack Size:
+                </span>
+                <span className="text-foreground/80">{product.packSize}</span>
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex items-center justify-between pt-1 border-t border-border">
           <span
             className="text-xl font-extrabold"
@@ -398,6 +450,15 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </span>
           <span className="text-xs text-muted-foreground">per box</span>
         </div>
+        <Button
+          data-ocid="catalog.primary_button"
+          size="sm"
+          className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold mt-1"
+          onClick={() => onAddToCart(product)}
+        >
+          <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
+          Add to Cart
+        </Button>
       </div>
     </motion.div>
   );
@@ -406,7 +467,10 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 // ────────────────────────────────────────
 // BRAND SECTION
 // ────────────────────────────────────────
-function BrandSection({ brand }: { brand: Brand }) {
+function BrandSection({
+  brand,
+  onAddToCart,
+}: { brand: Brand; onAddToCart: (p: Product, brandName: string) => void }) {
   return (
     <section id={brand.id} className="scroll-mt-20">
       <div className="flex items-center gap-4 mb-6">
@@ -428,6 +492,7 @@ function BrandSection({ brand }: { brand: Brand }) {
             key={`${product.name}-${product.dosage}`}
             product={product}
             index={i}
+            onAddToCart={(p) => onAddToCart(p, brand.name)}
           />
         ))}
       </div>
@@ -657,7 +722,30 @@ function LiveActivityTicker() {
   );
 }
 
-export default function App() {
+// ────────────────────────────────────────
+// CART ICON BUTTON
+// ────────────────────────────────────────
+function CartIconButton({ onNavigate }: { onNavigate: (p: string) => void }) {
+  const { cartCount } = useCart();
+  return (
+    <button
+      type="button"
+      data-ocid="nav.cart_button"
+      className="relative p-2 rounded-lg hover:bg-accent transition-colors"
+      onClick={() => onNavigate("/cart")}
+      aria-label="View cart"
+    >
+      <ShoppingCart className="w-5 h-5 text-foreground" />
+      {cartCount > 0 && (
+        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-teal-700 text-white text-xs flex items-center justify-center font-bold">
+          {cartCount > 9 ? "9+" : cartCount}
+        </span>
+      )}
+    </button>
+  );
+}
+
+function AppInner() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
@@ -675,6 +763,16 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
   const { identity } = useInternetIdentity();
+  const { addToCart } = useCart();
+
+  const addToCartFromPage = (p: Product, brandName: string) => {
+    addToCart({
+      productName: p.name,
+      brand: brandName,
+      dosage: p.dosage,
+      price: p.price,
+    });
+  };
   const { data: profile, isLoading: profileLoading } = useCallerUserProfile();
 
   const navigateAccount = () => {
@@ -686,8 +784,17 @@ export default function App() {
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
+  const navigate = (path: string) => {
+    window.history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
   if (pathname === "/Alexx") return <AdminPanel />;
   if (pathname === "/account") return <AccountPage onBack={navigateHome} />;
+  if (pathname === "/cart") return <CartPage onNavigate={navigate} />;
+  if (pathname === "/checkout") return <CheckoutPage onNavigate={navigate} />;
+  if (pathname.startsWith("/order-confirmation"))
+    return <OrderConfirmationPage onNavigate={navigate} />;
 
   // Show registration modal if logged in but no profile yet
   const showRegistration = !!identity && !profileLoading && profile === null;
@@ -787,6 +894,7 @@ export default function App() {
                   className="bg-transparent text-sm outline-none w-36 placeholder:text-muted-foreground text-foreground"
                 />
               </div>
+              <CartIconButton onNavigate={navigate} />
               <div className="hidden md:block">
                 <AuthButton onNavigateAccount={navigateAccount} />
               </div>
@@ -1029,7 +1137,11 @@ export default function App() {
 
             <div className="space-y-14">
               {(searchQuery ? filteredBrands : brands).map((brand) => (
-                <BrandSection key={brand.id} brand={brand} />
+                <BrandSection
+                  key={brand.id}
+                  brand={brand}
+                  onAddToCart={addToCartFromPage}
+                />
               ))}
             </div>
           </div>
@@ -1574,5 +1686,13 @@ export default function App() {
       <RegistrationModal open={showRegistration} />
       <Toaster richColors position="top-right" />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <CartProvider>
+      <AppInner />
+    </CartProvider>
   );
 }

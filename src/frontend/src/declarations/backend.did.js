@@ -13,6 +13,36 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const Time = IDL.Int;
+export const ShippingAddress = IDL.Record({
+  'country' : IDL.Text,
+  'city' : IDL.Text,
+  'apartment' : IDL.Text,
+  'zipCode' : IDL.Text,
+  'state' : IDL.Text,
+  'phone' : IDL.Text,
+  'lastName' : IDL.Text,
+  'streetAddress' : IDL.Text,
+  'firstName' : IDL.Text,
+});
+export const OrderItem = IDL.Record({
+  'productName' : IDL.Text,
+  'quantity' : IDL.Nat,
+  'price' : IDL.Float64,
+});
+export const Order = IDL.Record({
+  'status' : IDL.Text,
+  'total' : IDL.Float64,
+  'createdAt' : Time,
+  'customerUsername' : IDL.Text,
+  'shipping' : IDL.Float64,
+  'email' : IDL.Text,
+  'orderId' : IDL.Text,
+  'shippingAddress' : ShippingAddress,
+  'customerId' : IDL.Principal,
+  'items' : IDL.Vec(OrderItem),
+  'subtotal' : IDL.Float64,
+});
 export const PharmaceuticalProduct = IDL.Record({
   'dosage' : IDL.Text,
   'name' : IDL.Text,
@@ -22,7 +52,6 @@ export const PharmaceuticalProduct = IDL.Record({
   'brand' : IDL.Text,
   'packaging' : IDL.Text,
 });
-export const Time = IDL.Int;
 export const UserProfile = IDL.Record({
   'username' : IDL.Text,
   'registrationDate' : Time,
@@ -44,6 +73,7 @@ export const idlService = IDL.Service({
       [],
     ),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
   'getAllProducts' : IDL.Func([], [IDL.Vec(PharmaceuticalProduct)], ['query']),
   'getAllUsers' : IDL.Func(
       [],
@@ -52,6 +82,7 @@ export const idlService = IDL.Service({
     ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getMyOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
   'getProduct' : IDL.Func([IDL.Text], [PharmaceuticalProduct], ['query']),
   'getProductsByBrand' : IDL.Func(
       [IDL.Text],
@@ -64,6 +95,18 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'placeOrder' : IDL.Func(
+      [
+        IDL.Text,
+        ShippingAddress,
+        IDL.Vec(OrderItem),
+        IDL.Float64,
+        IDL.Float64,
+        IDL.Float64,
+      ],
+      [IDL.Text],
+      [],
+    ),
   'registerUser' : IDL.Func([IDL.Text], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
 });
@@ -76,6 +119,36 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const Time = IDL.Int;
+  const ShippingAddress = IDL.Record({
+    'country' : IDL.Text,
+    'city' : IDL.Text,
+    'apartment' : IDL.Text,
+    'zipCode' : IDL.Text,
+    'state' : IDL.Text,
+    'phone' : IDL.Text,
+    'lastName' : IDL.Text,
+    'streetAddress' : IDL.Text,
+    'firstName' : IDL.Text,
+  });
+  const OrderItem = IDL.Record({
+    'productName' : IDL.Text,
+    'quantity' : IDL.Nat,
+    'price' : IDL.Float64,
+  });
+  const Order = IDL.Record({
+    'status' : IDL.Text,
+    'total' : IDL.Float64,
+    'createdAt' : Time,
+    'customerUsername' : IDL.Text,
+    'shipping' : IDL.Float64,
+    'email' : IDL.Text,
+    'orderId' : IDL.Text,
+    'shippingAddress' : ShippingAddress,
+    'customerId' : IDL.Principal,
+    'items' : IDL.Vec(OrderItem),
+    'subtotal' : IDL.Float64,
+  });
   const PharmaceuticalProduct = IDL.Record({
     'dosage' : IDL.Text,
     'name' : IDL.Text,
@@ -85,7 +158,6 @@ export const idlFactory = ({ IDL }) => {
     'brand' : IDL.Text,
     'packaging' : IDL.Text,
   });
-  const Time = IDL.Int;
   const UserProfile = IDL.Record({
     'username' : IDL.Text,
     'registrationDate' : Time,
@@ -107,6 +179,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getAllProducts' : IDL.Func(
         [],
         [IDL.Vec(PharmaceuticalProduct)],
@@ -119,6 +192,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getMyOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getProduct' : IDL.Func([IDL.Text], [PharmaceuticalProduct], ['query']),
     'getProductsByBrand' : IDL.Func(
         [IDL.Text],
@@ -131,6 +205,18 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'placeOrder' : IDL.Func(
+        [
+          IDL.Text,
+          ShippingAddress,
+          IDL.Vec(OrderItem),
+          IDL.Float64,
+          IDL.Float64,
+          IDL.Float64,
+        ],
+        [IDL.Text],
+        [],
+      ),
     'registerUser' : IDL.Func([IDL.Text], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   });

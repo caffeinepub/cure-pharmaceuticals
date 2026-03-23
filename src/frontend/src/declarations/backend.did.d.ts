@@ -10,6 +10,24 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Order {
+  'status' : string,
+  'total' : number,
+  'createdAt' : Time,
+  'customerUsername' : string,
+  'shipping' : number,
+  'email' : string,
+  'orderId' : string,
+  'shippingAddress' : ShippingAddress,
+  'customerId' : Principal,
+  'items' : Array<OrderItem>,
+  'subtotal' : number,
+}
+export interface OrderItem {
+  'productName' : string,
+  'quantity' : bigint,
+  'price' : number,
+}
 export interface PharmaceuticalProduct {
   'dosage' : string,
   'name' : string,
@@ -18,6 +36,17 @@ export interface PharmaceuticalProduct {
   'units' : bigint,
   'brand' : string,
   'packaging' : string,
+}
+export interface ShippingAddress {
+  'country' : string,
+  'city' : string,
+  'apartment' : string,
+  'zipCode' : string,
+  'state' : string,
+  'phone' : string,
+  'lastName' : string,
+  'streetAddress' : string,
+  'firstName' : string,
 }
 export type Time = bigint;
 export interface UserProfile { 'username' : string, 'registrationDate' : Time }
@@ -31,14 +60,20 @@ export interface _SERVICE {
     undefined
   >,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'getAllOrders' : ActorMethod<[], Array<Order>>,
   'getAllProducts' : ActorMethod<[], Array<PharmaceuticalProduct>>,
   'getAllUsers' : ActorMethod<[], Array<[Principal, UserProfile]>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getMyOrders' : ActorMethod<[], Array<Order>>,
   'getProduct' : ActorMethod<[string], PharmaceuticalProduct>,
   'getProductsByBrand' : ActorMethod<[string], Array<PharmaceuticalProduct>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'placeOrder' : ActorMethod<
+    [string, ShippingAddress, Array<OrderItem>, number, number, number],
+    string
+  >,
   'registerUser' : ActorMethod<[string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
 }
