@@ -16,7 +16,6 @@ import {
   Edit2,
   Eye,
   EyeOff,
-  ImagePlus,
   LogOut,
   Plus,
   ShoppingBag,
@@ -24,7 +23,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useGetAllOrders, useGetAllUsers } from "../hooks/useQueries";
 
 // ────────────────────────────────────────
@@ -41,7 +40,7 @@ interface AdminProduct {
   manufacturedBy: string;
   form: string;
   packSize: string;
-  images: string[]; // base64 data URLs, max 3
+  images: string[]; // image URLs, max 3
 }
 
 interface AdminReview {
@@ -449,39 +448,42 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
 }
 
 // ────────────────────────────────────────
-// Image Upload Slot
+// Image URL Slot
 // ────────────────────────────────────────
-function ImageSlot({
+function ImageUrlSlot({
   label,
-  image,
-  onUpload,
+  url,
+  onUrlChange,
   onRemove,
 }: {
   label: string;
-  image: string | undefined;
-  onUpload: (dataUrl: string) => void;
+  url: string | undefined;
+  onUrlChange: (url: string) => void;
   onRemove: () => void;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") onUpload(reader.result);
-    };
-    reader.readAsDataURL(file);
-    // reset so same file can be re-uploaded
-    e.target.value = "";
-  };
+  const hasUrl = url && url.trim().length > 0;
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      {image ? (
+      <Input
+        type="url"
+        placeholder="https://example.com/image.jpg"
+        value={url || ""}
+        onChange={(e) => onUrlChange(e.target.value)}
+        className="h-8 text-sm"
+        data-ocid="products.input"
+      />
+      {hasUrl ? (
         <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-border bg-muted">
-          <img src={image} alt={label} className="w-full h-full object-cover" />
+          <img
+            src={url}
+            alt={label}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
+          />
           <button
             type="button"
             onClick={onRemove}
@@ -492,23 +494,10 @@ function ImageSlot({
           </button>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          className="w-full aspect-video rounded-lg border-2 border-dashed border-teal-300 bg-teal-50/50 hover:bg-teal-100/50 transition-colors flex flex-col items-center justify-center gap-1 text-teal-600"
-          data-ocid="products.upload_button"
-        >
-          <ImagePlus className="w-5 h-5" />
-          <span className="text-xs">Upload image</span>
-        </button>
+        <div className="w-full aspect-video rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/30 flex items-center justify-center">
+          <span className="text-xs text-muted-foreground">No image</span>
+        </div>
       )}
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFile}
-      />
     </div>
   );
 }
@@ -579,9 +568,9 @@ function ProductsTab() {
     }
   };
 
-  const setImage = (slot: number, dataUrl: string) => {
+  const setImage = (slot: number, url: string) => {
     const imgs = [...(formData.images || []), "", "", ""].slice(0, 3);
-    imgs[slot] = dataUrl;
+    imgs[slot] = url;
     setFormData((f) => ({ ...f, images: imgs }));
   };
 
@@ -789,15 +778,15 @@ function ProductsTab() {
             {/* Images */}
             <div>
               <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-3">
-                Product Images (up to 3)
+                Product Images (up to 3) — paste image URLs
               </p>
               <div className="grid grid-cols-3 gap-3">
                 {([0, 1, 2] as const).map((slot) => (
-                  <ImageSlot
+                  <ImageUrlSlot
                     key={slot}
                     label={`Image ${slot + 1}`}
-                    image={imgs[slot] || undefined}
-                    onUpload={(url) => setImage(slot, url)}
+                    url={imgs[slot] || undefined}
+                    onUrlChange={(url) => setImage(slot, url)}
                     onRemove={() => removeImage(slot)}
                   />
                 ))}
