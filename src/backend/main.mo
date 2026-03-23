@@ -3,7 +3,6 @@ import Text "mo:core/Text";
 import Float "mo:core/Float";
 import Order "mo:core/Order";
 import Map "mo:core/Map";
-import List "mo:core/List";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 
@@ -33,10 +32,8 @@ actor {
     imageUrls : [Text];
   };
 
-  module PharmaceuticalProduct {
-    public func compare(p1 : PharmaceuticalProduct, p2 : PharmaceuticalProduct) : Order.Order {
-      Text.compare(p1.name # p1.dosage, p2.name # p2.dosage);
-    };
+  func compareProducts(p1 : PharmaceuticalProduct, p2 : PharmaceuticalProduct) : Order.Order {
+    Text.compare(p1.name # p1.dosage, p2.name # p2.dosage);
   };
 
   // Order types
@@ -98,7 +95,7 @@ actor {
   };
 
   func filterImageUrls(urls : [Text]) : [Text] {
-    urls.vals().filter(func(url : Text) : Bool { url != "" }).toArray();
+    urls.filter(func(url : Text) : Bool { not Text.equal(url, "") });
   };
 
   // User profile management
@@ -192,13 +189,12 @@ actor {
 
   public query func getAllProducts() : async [PharmaceuticalProduct] {
     let arr = products.values().toArray();
-    arr.sort();
+    arr.sort(compareProducts);
   };
 
   public query func getProductsByBrand(brand : Text) : async [PharmaceuticalProduct] {
-    products.values().filter(func(p : PharmaceuticalProduct) : Bool {
-      Text.equal(p.brand, brand);
-    }).toArray();
+    let arr = products.values().toArray();
+    arr.filter(func(p : PharmaceuticalProduct) : Bool { Text.equal(p.brand, brand) });
   };
 
   // Order management
@@ -248,14 +244,7 @@ actor {
       Runtime.trap("User not registered");
     };
 
-    let filteredOrders = List.empty<Order>();
-
-    for (order in orders.values()) {
-      if (order.customerId == caller) {
-        filteredOrders.add(order);
-      };
-    };
-
-    filteredOrders.toArray();
+    let allOrders = orders.values().toArray();
+    allOrders.filter(func(order : Order) : Bool { Principal.equal(order.customerId, caller) });
   };
 };
