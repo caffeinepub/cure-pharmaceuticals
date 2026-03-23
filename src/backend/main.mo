@@ -11,7 +11,9 @@ import Principal "mo:core/Principal";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   type UserProfile = {
     username : Text;
@@ -26,6 +28,11 @@ actor {
     priceUk : Float;
     packaging : Text;
     units : Nat;
+    strength : Text;
+    manufacturedBy : Text;
+    form : Text;
+    packSize : Text;
+    imageUrls : [Text];
   };
 
   module PharmaceuticalProduct {
@@ -69,11 +76,11 @@ actor {
 
   let ADMIN_PASSWORD : Text = "Alex@thomas2026";
 
-  stable var accessControlState = AccessControl.initState();
+  var accessControlState = AccessControl.initState();
 
-  stable var userProfiles = Map.empty<Principal, UserProfile>();
-  stable var products = Map.empty<Text, PharmaceuticalProduct>();
-  stable var orders = Map.empty<Text, Order>();
+  var userProfiles = Map.empty<Principal, UserProfile>();
+  var products = Map.empty<Text, PharmaceuticalProduct>();
+  var orders = Map.empty<Text, Order>();
 
   include MixinAuthorization(accessControlState);
 
@@ -124,23 +131,49 @@ actor {
   };
 
   // Product catalog management
-  public shared ({ caller }) func addProduct(name : Text, brand : Text, dosage : Text, priceEuros : Float, priceUk : Float, packaging : Text, units : Nat) : async () {
+  public shared ({ caller }) func addProduct(product : PharmaceuticalProduct) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add products");
     };
-    if (products.containsKey(name)) {
+
+    if (products.containsKey(product.name)) {
       Runtime.trap("Product already exists");
     };
-    let product : PharmaceuticalProduct = {
-      name;
-      brand;
-      dosage;
-      priceEurope = priceEuros;
-      priceUk = priceUk;
-      packaging;
-      units;
+
+    let validImageUrls = product.imageUrls.filter(func(url) { url != "" });
+
+    let newProduct = {
+      product with
+      imageUrls = validImageUrls;
+      priceEurope = product.priceEurope;
+      priceUk = product.priceUk;
     };
-    products.add(product.name, product);
+
+    products.add(product.name, newProduct);
+  };
+
+  public shared ({ caller }) func updateProduct(name : Text, updatedProduct : PharmaceuticalProduct) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update products");
+    };
+    if (not products.containsKey(name)) {
+      Runtime.trap("Product does not exist");
+    };
+    let validName = updatedProduct.name.trim(#char ' ');
+    if (validName == "" or validName != name) {
+      Runtime.trap("Product name must remain unchanged and not be empty");
+    };
+
+    let validImageUrls = updatedProduct.imageUrls.filter(func(url) { url != "" });
+
+    let productToUpdate = {
+      updatedProduct with
+      imageUrls = validImageUrls;
+      priceEurope = updatedProduct.priceEurope;
+      priceUk = updatedProduct.priceUk;
+    };
+
+    products.add(name, productToUpdate);
   };
 
   public query ({ caller }) func getProduct(name : Text) : async PharmaceuticalProduct {
@@ -148,6 +181,16 @@ actor {
       case (null) { Runtime.trap("Product does not exist") };
       case (?product) { product };
     };
+  };
+
+  public shared ({ caller }) func deleteProduct(name : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can delete products");
+    };
+    if (not products.containsKey(name)) {
+      Runtime.trap("Product does not exist");
+    };
+    products.remove(name);
   };
 
   public query ({ caller }) func getAllProducts() : async [PharmaceuticalProduct] {

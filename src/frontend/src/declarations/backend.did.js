@@ -8,6 +8,20 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const PharmaceuticalProduct = IDL.Record({
+  'imageUrls' : IDL.Vec(IDL.Text),
+  'packSize' : IDL.Text,
+  'dosage' : IDL.Text,
+  'form' : IDL.Text,
+  'name' : IDL.Text,
+  'priceEurope' : IDL.Float64,
+  'priceUk' : IDL.Float64,
+  'strength' : IDL.Text,
+  'units' : IDL.Nat,
+  'manufacturedBy' : IDL.Text,
+  'brand' : IDL.Text,
+  'packaging' : IDL.Text,
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
@@ -43,15 +57,6 @@ export const Order = IDL.Record({
   'items' : IDL.Vec(OrderItem),
   'subtotal' : IDL.Float64,
 });
-export const PharmaceuticalProduct = IDL.Record({
-  'dosage' : IDL.Text,
-  'name' : IDL.Text,
-  'priceEurope' : IDL.Float64,
-  'priceUk' : IDL.Float64,
-  'units' : IDL.Nat,
-  'brand' : IDL.Text,
-  'packaging' : IDL.Text,
-});
 export const UserProfile = IDL.Record({
   'username' : IDL.Text,
   'registrationDate' : Time,
@@ -59,24 +64,13 @@ export const UserProfile = IDL.Record({
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'addProduct' : IDL.Func(
-      [
-        IDL.Text,
-        IDL.Text,
-        IDL.Text,
-        IDL.Float64,
-        IDL.Float64,
-        IDL.Text,
-        IDL.Nat,
-      ],
-      [],
-      [],
-    ),
+  'addProduct' : IDL.Func([PharmaceuticalProduct], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+  'deleteProduct' : IDL.Func([IDL.Text], [], []),
+  'getAllOrders' : IDL.Func([IDL.Text], [IDL.Vec(Order)], ['query']),
   'getAllProducts' : IDL.Func([], [IDL.Vec(PharmaceuticalProduct)], ['query']),
   'getAllUsers' : IDL.Func(
-      [],
+      [IDL.Text],
       [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
       ['query'],
     ),
@@ -109,11 +103,26 @@ export const idlService = IDL.Service({
     ),
   'registerUser' : IDL.Func([IDL.Text], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateProduct' : IDL.Func([IDL.Text, PharmaceuticalProduct], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const PharmaceuticalProduct = IDL.Record({
+    'imageUrls' : IDL.Vec(IDL.Text),
+    'packSize' : IDL.Text,
+    'dosage' : IDL.Text,
+    'form' : IDL.Text,
+    'name' : IDL.Text,
+    'priceEurope' : IDL.Float64,
+    'priceUk' : IDL.Float64,
+    'strength' : IDL.Text,
+    'units' : IDL.Nat,
+    'manufacturedBy' : IDL.Text,
+    'brand' : IDL.Text,
+    'packaging' : IDL.Text,
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
@@ -149,15 +158,6 @@ export const idlFactory = ({ IDL }) => {
     'items' : IDL.Vec(OrderItem),
     'subtotal' : IDL.Float64,
   });
-  const PharmaceuticalProduct = IDL.Record({
-    'dosage' : IDL.Text,
-    'name' : IDL.Text,
-    'priceEurope' : IDL.Float64,
-    'priceUk' : IDL.Float64,
-    'units' : IDL.Nat,
-    'brand' : IDL.Text,
-    'packaging' : IDL.Text,
-  });
   const UserProfile = IDL.Record({
     'username' : IDL.Text,
     'registrationDate' : Time,
@@ -165,28 +165,17 @@ export const idlFactory = ({ IDL }) => {
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'addProduct' : IDL.Func(
-        [
-          IDL.Text,
-          IDL.Text,
-          IDL.Text,
-          IDL.Float64,
-          IDL.Float64,
-          IDL.Text,
-          IDL.Nat,
-        ],
-        [],
-        [],
-      ),
+    'addProduct' : IDL.Func([PharmaceuticalProduct], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+    'deleteProduct' : IDL.Func([IDL.Text], [], []),
+    'getAllOrders' : IDL.Func([IDL.Text], [IDL.Vec(Order)], ['query']),
     'getAllProducts' : IDL.Func(
         [],
         [IDL.Vec(PharmaceuticalProduct)],
         ['query'],
       ),
     'getAllUsers' : IDL.Func(
-        [],
+        [IDL.Text],
         [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
         ['query'],
       ),
@@ -219,6 +208,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'registerUser' : IDL.Func([IDL.Text], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateProduct' : IDL.Func([IDL.Text, PharmaceuticalProduct], [], []),
   });
 };
 

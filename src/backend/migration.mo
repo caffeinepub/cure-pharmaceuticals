@@ -1,18 +1,17 @@
 import Map "mo:core/Map";
-import Principal "mo:core/Principal";
+import Time "mo:core/Time";
+import Nat "mo:core/Nat";
 import Text "mo:core/Text";
+import Float "mo:core/Float";
+import Principal "mo:core/Principal";
 
 module {
-  type OldProduct = {
-    name : Text;
-    brand : Text;
-    dosage : Text;
-    price : { #europe : Float; #uk : Float };
-    packaging : Text;
-    units : Nat;
+  type UserProfile = {
+    username : Text;
+    registrationDate : Time.Time;
   };
 
-  type NewProduct = {
+  type OldPharmaceuticalProduct = {
     name : Text;
     brand : Text;
     dosage : Text;
@@ -22,33 +21,88 @@ module {
     units : Nat;
   };
 
+  type NewPharmaceuticalProduct = {
+    name : Text;
+    brand : Text;
+    dosage : Text;
+    priceEurope : Float;
+    priceUk : Float;
+    packaging : Text;
+    units : Nat;
+    strength : Text;
+    manufacturedBy : Text;
+    form : Text;
+    packSize : Text;
+    imageUrls : [Text];
+  };
+
+  type OrderItem = {
+    productName : Text;
+    price : Float;
+    quantity : Nat;
+  };
+
+  type ShippingAddress = {
+    firstName : Text;
+    lastName : Text;
+    phone : Text;
+    country : Text;
+    streetAddress : Text;
+    apartment : Text;
+    city : Text;
+    state : Text;
+    zipCode : Text;
+  };
+
+  type Order = {
+    orderId : Text;
+    customerId : Principal;
+    customerUsername : Text;
+    email : Text;
+    shippingAddress : ShippingAddress;
+    items : [OrderItem];
+    subtotal : Float;
+    shipping : Float;
+    total : Float;
+    status : Text;
+    createdAt : Time.Time;
+  };
+
   type OldActor = {
-    products : Map.Map<Text, OldProduct>;
+    userProfiles : Map.Map<Principal, UserProfile>;
+    products : Map.Map<Text, OldPharmaceuticalProduct>;
+    orders : Map.Map<Text, Order>;
   };
 
   type NewActor = {
-    products : Map.Map<Text, NewProduct>;
-    userProfiles : Map.Map<Principal, { username : Text; registrationDate : Int }>;
+    userProfiles : Map.Map<Principal, UserProfile>;
+    products : Map.Map<Text, NewPharmaceuticalProduct>;
+    orders : Map.Map<Text, Order>;
   };
 
   public func run(old : OldActor) : NewActor {
-    let newProducts = old.products.map<Text, OldProduct, NewProduct>(
-      func(_key, oldProduct) {
-        let (euroPrice, ukPrice) = switch (oldProduct.price) {
-          case (#europe(p)) { (p, p) };
-          case (#uk(p)) { (p, p) };
-        };
+    let migratedProducts = old.products.map<Text, OldPharmaceuticalProduct, NewPharmaceuticalProduct>(
+      func(_name, oldProduct) {
         {
-          oldProduct with
-          priceEurope = euroPrice;
-          priceUk = ukPrice;
+          name = oldProduct.name;
+          brand = oldProduct.brand;
+          dosage = oldProduct.dosage;
+          priceEurope = oldProduct.priceEurope;
+          priceUk = oldProduct.priceUk;
+          packaging = oldProduct.packaging;
+          units = oldProduct.units;
+          strength = "";
+          manufacturedBy = "";
+          form = "";
+          packSize = "";
+          imageUrls = [];
         };
       }
     );
-
     {
-      products = newProducts;
-      userProfiles = Map.empty<Principal, { username : Text; registrationDate : Int }>();
+      userProfiles = old.userProfiles;
+      products = migratedProducts;
+      orders = old.orders;
     };
   };
 };

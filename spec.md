@@ -1,27 +1,29 @@
 # Cure Pharmaceuticals
 
 ## Current State
-A pharmaceutical product catalog with 15 products across 5 brands, contact page, homepage reviews, a live activity ticker, and an Admin Panel (accessible via `/Alexx`, password `Alex@thomas2026`). The admin panel has tabs for managing products, reviews, and ticker notifications. No user accounts exist.
+The Admin Panel product editor manages products in local React component state only. Changes are never persisted to the backend. The main catalog (App.tsx) reads from a hardcoded static `brands` array and never fetches from the backend. The backend `PharmaceuticalProduct` type is missing fields for `strength`, `manufacturedBy`, `form`, `packSize`, and `images`.
 
 ## Requested Changes (Diff)
 
 ### Add
-- User registration: visitors can sign up with username/email and password
-- User login: registered users can sign in
-- User account page: shows basic profile info (username, member since)
-- Navigation header button: "Sign In / Register" for guests, account name for logged-in users
-- Authorization component integration for user management
+- Backend: Extended product model with fields: `strength`, `manufacturedBy`, `form`, `packSize`, `imageUrls` (array of up to 3 strings)
+- Backend: `updateProduct` function for admins to update product details
+- Backend: `deleteProduct` function for admins
+- Backend: `getAllProducts` returns the extended product model
+- Frontend App.tsx: Fetch all products from backend on load, group by brand, render dynamically
+- Frontend AdminPanel: Save product adds/edits by calling backend `addProduct` / `updateProduct`; delete calls `deleteProduct`
 
 ### Modify
-- Navigation bar: add account/login button
-- Admin Panel: add a "Users" tab showing registered accounts
+- Backend `addProduct`: Accept extended fields
+- Frontend product card: Use `imageUrls[0]` as primary image when present
 
 ### Remove
-- Nothing removed
+- Hardcoded `brands` array from App.tsx (replaced by backend data)
+- Hardcoded product list from AdminPanel (replaced by backend fetch)
 
 ## Implementation Plan
-1. Integrate authorization Caffeine component for user identity and registration
-2. Add Register/Login modal or page accessible from the nav bar
-3. Show logged-in user's name in the nav with a dropdown (view profile, log out)
-4. Add a simple account profile page at `/account`
-5. Admin Panel: add Users tab listing registered users with their usernames and registration dates
+1. Regenerate Motoko backend with extended product model and update/delete functions
+2. Update frontend:
+   - App.tsx: `useEffect` to `getAllProducts()`, group by brand, render dynamically
+   - AdminPanel: fetch products from backend, call `addProduct`/`updateProduct`/`deleteProduct` on save/delete
+   - Product card: show `imageUrls[0]` if present, fallback to default image

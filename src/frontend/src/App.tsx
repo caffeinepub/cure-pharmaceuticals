@@ -33,6 +33,7 @@ import CartPage from "./components/CartPage";
 import CheckoutPage from "./components/CheckoutPage";
 import OrderConfirmationPage from "./components/OrderConfirmationPage";
 import { CartProvider, useCart } from "./contexts/CartContext";
+import { useActor } from "./hooks/useActor";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useCallerUserProfile } from "./hooks/useQueries";
 
@@ -62,183 +63,48 @@ interface Brand {
   products: Product[];
 }
 
-const brands: Brand[] = [
-  {
+// Brand metadata (colors and subtitles for grouping)
+const BRAND_META: Record<
+  string,
+  { id: string; subtitle: string; color: string }
+> = {
+  Cenforce: {
     id: "cenforce",
-    name: "Cenforce",
     subtitle: "Sildenafil Citrate Tablets",
     color: "#0B6D7A",
-    products: [
-      {
-        name: "Cenforce",
-        dosage: "50mg",
-        price: 55,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/cenforce-pack.dim_400x300.jpg",
-      },
-      {
-        name: "Cenforce",
-        dosage: "100mg",
-        price: 60,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/cenforce-pack.dim_400x300.jpg",
-      },
-      {
-        name: "Cenforce",
-        dosage: "150mg",
-        price: 65,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/cenforce-pack.dim_400x300.jpg",
-      },
-      {
-        name: "Cenforce",
-        dosage: "200mg",
-        price: 70,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/cenforce-pack.dim_400x300.jpg",
-      },
-    ],
   },
-  {
+  Vidalista: {
     id: "vidalista",
-    name: "Vidalista",
     subtitle: "Tadalafil Tablets",
     color: "#B8670A",
-    products: [
-      {
-        name: "Vidalista",
-        dosage: "20mg",
-        price: 55,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/vidalista-pack.dim_400x300.jpg",
-      },
-      {
-        name: "Vidalista",
-        dosage: "40mg",
-        price: 62,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/vidalista-pack.dim_400x300.jpg",
-      },
-      {
-        name: "Vidalista",
-        dosage: "60mg",
-        price: 68,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/vidalista-pack.dim_400x300.jpg",
-      },
-      {
-        name: "Vidalista",
-        dosage: "80mg",
-        price: 75,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/vidalista-pack.dim_400x300.jpg",
-      },
-    ],
   },
-  {
+  Kamagra: {
     id: "kamagra",
-    name: "Kamagra",
     subtitle: "Sildenafil Oral Solutions",
     color: "#2B6FB3",
-    products: [
-      {
-        name: "Kamagra",
-        dosage: "Oral Jelly",
-        price: 65,
-        packaging: "1×7 Box",
-        count: "7 Sachets",
-        type: "jelly",
-        image: "/assets/generated/kamagra-jelly-pack.dim_400x300.jpg",
-      },
-      {
-        name: "Super Kamagra",
-        dosage: "100mg+60mg",
-        price: 50,
-        packaging: "1×4 Box",
-        count: "4 Tablets",
-        type: "tablet",
-        image: "/assets/generated/kamagra-jelly-pack.dim_400x300.jpg",
-      },
-    ],
   },
-  {
-    id: "carefill",
-    name: "CareFill",
-    subtitle: "Tadalafil Tablets",
-    color: "#2A7A3B",
-    products: [
-      {
-        name: "CareFill",
-        dosage: "20mg",
-        price: 55,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/carefill-pack.dim_400x300.jpg",
-      },
-      {
-        name: "CareFill",
-        dosage: "40mg",
-        price: 60,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/carefill-pack.dim_400x300.jpg",
-      },
-      {
-        name: "CareFill",
-        dosage: "60mg",
-        price: 65,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/carefill-pack.dim_400x300.jpg",
-      },
-      {
-        name: "CareFill",
-        dosage: "80mg",
-        price: 70,
-        packaging: "10×10 Blister",
-        count: "100 Tablets",
-        type: "tablet",
-        image: "/assets/generated/carefill-pack.dim_400x300.jpg",
-      },
-    ],
-  },
-  {
+  CareFill: { id: "carefill", subtitle: "Tadalafil Tablets", color: "#2A7A3B" },
+  Lovegra: {
     id: "lovegra",
-    name: "Lovegra",
     subtitle: "Sildenafil Oral Jelly for Women",
     color: "#A0305C",
-    products: [
-      {
-        name: "Lovegra",
-        dosage: "Oral Jelly",
-        price: 65,
-        packaging: "1×7 Box",
-        count: "7 Sachets",
-        type: "jelly",
-        image: "/assets/generated/kamagra-jelly-pack.dim_400x300.jpg",
-      },
-    ],
   },
-];
+  Fildena: {
+    id: "fildena",
+    subtitle: "Sildenafil Citrate Tablets",
+    color: "#7B3FA0",
+  },
+};
+
+function getDefaultBrandMeta(brandName: string) {
+  return (
+    BRAND_META[brandName] ?? {
+      id: brandName.toLowerCase().replace(/\s+/g, "-"),
+      subtitle: "Pharmaceutical Product",
+      color: "#0B6D7A",
+    }
+  );
+}
 
 const contactLinks = [
   {
@@ -762,6 +628,54 @@ function AppInner() {
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
+  const { actor, isFetching: actorFetching } = useActor();
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!actor || actorFetching) return;
+    setProductsLoading(true);
+    actor
+      .getAllProducts()
+      .then((products) => {
+        // Group by brand
+        const brandMap = new Map<string, Brand>();
+        for (const p of products) {
+          const meta = getDefaultBrandMeta(p.brand);
+          if (!brandMap.has(p.brand)) {
+            brandMap.set(p.brand, {
+              id: meta.id,
+              name: p.brand,
+              subtitle: meta.subtitle,
+              color: meta.color,
+              products: [],
+            });
+          }
+          const form = p.form.toLowerCase();
+          const isJelly = form.includes("jelly") || form.includes("sachet");
+          brandMap.get(p.brand)!.products.push({
+            name: p.name,
+            dosage: p.dosage,
+            price: p.priceEurope,
+            packaging: p.packaging,
+            count: String(p.units),
+            type: isJelly ? "jelly" : "tablet",
+            image:
+              p.imageUrls[0] ||
+              "/assets/generated/cenforce-pack.dim_400x300.jpg",
+            images: p.imageUrls,
+            strength: p.strength,
+            manufacturedBy: p.manufacturedBy,
+            form: p.form,
+            packSize: p.packSize,
+          });
+        }
+        setBrands(Array.from(brandMap.values()));
+        setProductsLoading(false);
+      })
+      .catch(() => setProductsLoading(false));
+  }, [actor, actorFetching]);
+
   const { identity } = useInternetIdentity();
   const { addToCart } = useCart();
 
@@ -811,6 +725,7 @@ function AppInner() {
       ),
     }))
     .filter((b) => b.products.length > 0);
+  const catalogLoading = productsLoading || actorFetching;
 
   const navLinks = [
     { label: "Home", href: "#" },
@@ -1116,7 +1031,19 @@ function AppInner() {
               </p>
             </motion.div>
 
-            {searchQuery && filteredBrands.length === 0 && (
+            {catalogLoading && (
+              <div
+                className="text-center py-16"
+                data-ocid="catalog.loading_state"
+              >
+                <div className="inline-block w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-muted-foreground text-sm">
+                  Loading products...
+                </p>
+              </div>
+            )}
+
+            {!catalogLoading && searchQuery && filteredBrands.length === 0 && (
               <div
                 className="text-center py-16"
                 data-ocid="catalog.empty_state"
@@ -1135,15 +1062,29 @@ function AppInner() {
               </div>
             )}
 
-            <div className="space-y-14">
-              {(searchQuery ? filteredBrands : brands).map((brand) => (
-                <BrandSection
-                  key={brand.id}
-                  brand={brand}
-                  onAddToCart={addToCartFromPage}
-                />
-              ))}
-            </div>
+            {!catalogLoading && !searchQuery && brands.length === 0 && (
+              <div
+                className="text-center py-16"
+                data-ocid="catalog.empty_state"
+              >
+                <Pill className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground font-medium">
+                  No products available yet.
+                </p>
+              </div>
+            )}
+
+            {!catalogLoading && (
+              <div className="space-y-14">
+                {(searchQuery ? filteredBrands : brands).map((brand) => (
+                  <BrandSection
+                    key={brand.id}
+                    brand={brand}
+                    onAddToCart={addToCartFromPage}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </section>
 

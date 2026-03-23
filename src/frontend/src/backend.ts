@@ -102,11 +102,16 @@ export interface ShippingAddress {
     firstName: string;
 }
 export interface PharmaceuticalProduct {
+    imageUrls: Array<string>;
+    packSize: string;
     dosage: string;
+    form: string;
     name: string;
     priceEurope: number;
     priceUk: number;
+    strength: string;
     units: bigint;
+    manufacturedBy: string;
     brand: string;
     packaging: string;
 }
@@ -139,8 +144,9 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    addProduct(name: string, brand: string, dosage: string, priceEuros: number, priceUk: number, packaging: string, units: bigint): Promise<void>;
+    addProduct(product: PharmaceuticalProduct): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteProduct(name: string): Promise<void>;
     getAllOrders(adminPassword: string): Promise<Array<Order>>;
     getAllProducts(): Promise<Array<PharmaceuticalProduct>>;
     getAllUsers(adminPassword: string): Promise<Array<[Principal, UserProfile]>>;
@@ -154,6 +160,7 @@ export interface backendInterface {
     placeOrder(email: string, shippingAddress: ShippingAddress, items: Array<OrderItem>, subtotal: number, shipping: number, total: number): Promise<string>;
     registerUser(username: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateProduct(name: string, updatedProduct: PharmaceuticalProduct): Promise<void>;
 }
 import type { UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -172,17 +179,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async addProduct(arg0: string, arg1: string, arg2: string, arg3: number, arg4: number, arg5: string, arg6: bigint): Promise<void> {
+    async addProduct(arg0: PharmaceuticalProduct): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.addProduct(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                const result = await this.actor.addProduct(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addProduct(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            const result = await this.actor.addProduct(arg0);
             return result;
         }
     }
@@ -200,17 +207,31 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllOrders(adminPassword: string): Promise<Array<Order>> {
+    async deleteProduct(arg0: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.getAllOrders(adminPassword);
+                const result = await this.actor.deleteProduct(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getAllOrders(adminPassword);
+            const result = await this.actor.deleteProduct(arg0);
+            return result;
+        }
+    }
+    async getAllOrders(arg0: string): Promise<Array<Order>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllOrders(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllOrders(arg0);
             return result;
         }
     }
@@ -228,17 +249,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllUsers(adminPassword: string): Promise<Array<[Principal, UserProfile]>> {
+    async getAllUsers(arg0: string): Promise<Array<[Principal, UserProfile]>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getAllUsers(adminPassword);
+                const result = await this.actor.getAllUsers(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getAllUsers(adminPassword);
+            const result = await this.actor.getAllUsers(arg0);
             return result;
         }
     }
@@ -379,6 +400,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async updateProduct(arg0: string, arg1: PharmaceuticalProduct): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateProduct(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateProduct(arg0, arg1);
             return result;
         }
     }

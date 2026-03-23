@@ -29,11 +29,16 @@ export interface OrderItem {
   'price' : number,
 }
 export interface PharmaceuticalProduct {
+  'imageUrls' : Array<string>,
+  'packSize' : string,
   'dosage' : string,
+  'form' : string,
   'name' : string,
   'priceEurope' : number,
   'priceUk' : number,
+  'strength' : string,
   'units' : bigint,
+  'manufacturedBy' : string,
   'brand' : string,
   'packaging' : string,
 }
@@ -55,14 +60,12 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'addProduct' : ActorMethod<
-    [string, string, string, number, number, string, bigint],
-    undefined
-  >,
+  'addProduct' : ActorMethod<[PharmaceuticalProduct], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'getAllOrders' : ActorMethod<[], Array<Order>>,
+  'deleteProduct' : ActorMethod<[string], undefined>,
+  'getAllOrders' : ActorMethod<[string], Array<Order>>,
   'getAllProducts' : ActorMethod<[], Array<PharmaceuticalProduct>>,
-  'getAllUsers' : ActorMethod<[], Array<[Principal, UserProfile]>>,
+  'getAllUsers' : ActorMethod<[string], Array<[Principal, UserProfile]>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getMyOrders' : ActorMethod<[], Array<Order>>,
@@ -76,6 +79,7 @@ export interface _SERVICE {
   >,
   'registerUser' : ActorMethod<[string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateProduct' : ActorMethod<[string, PharmaceuticalProduct], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

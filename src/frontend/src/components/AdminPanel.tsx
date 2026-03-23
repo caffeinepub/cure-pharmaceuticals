@@ -23,7 +23,10 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import type { PharmaceuticalProduct } from "../backend.d";
+import { useActor } from "../hooks/useActor";
 import { useGetAllOrders, useGetAllUsers } from "../hooks/useQueries";
 
 // ────────────────────────────────────────
@@ -61,7 +64,7 @@ interface AdminNotification {
 // ────────────────────────────────────────
 // Initial data
 // ────────────────────────────────────────
-const initialProducts: AdminProduct[] = [
+const _initialProducts: AdminProduct[] = [
   {
     brand: "Cenforce",
     name: "Cenforce",
@@ -520,20 +523,82 @@ const EMPTY_FORM: AdminProduct = {
 };
 
 function ProductsTab() {
-  const [products, setProducts] = useState<AdminProduct[]>(initialProducts);
+  const { actor } = useActor();
+  const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [originalName, setOriginalName] = useState<string | null>(null);
   const [formData, setFormData] = useState<AdminProduct>(EMPTY_FORM);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
+  const fetchProducts = async () => {
+    if (!actor) return;
+    try {
+      const backendProducts = await actor.getAllProducts();
+      setProducts(
+        backendProducts.map((p) => ({
+          brand: p.brand,
+          name: p.name,
+          dosage: p.dosage,
+          price: p.priceEurope,
+          packaging: p.packaging,
+          count: String(p.units),
+          strength: p.strength,
+          manufacturedBy: p.manufacturedBy,
+          form: p.form,
+          packSize: p.packSize,
+          images: p.imageUrls,
+        })),
+      );
+    } catch (_e) {
+      toast.error("Failed to load products");
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!actor) return;
+    setLoadingProducts(true);
+    actor
+      .getAllProducts()
+      .then((backendProducts) => {
+        setProducts(
+          backendProducts.map((p) => ({
+            brand: p.brand,
+            name: p.name,
+            dosage: p.dosage,
+            price: p.priceEurope,
+            packaging: p.packaging,
+            count: String(p.units),
+            strength: p.strength,
+            manufacturedBy: p.manufacturedBy,
+            form: p.form,
+            packSize: p.packSize,
+            images: p.imageUrls,
+          })),
+        );
+      })
+      .catch(() => {
+        toast.error("Failed to load products");
+      })
+      .finally(() => {
+        setLoadingProducts(false);
+      });
+  }, [actor]);
 
   const openAdd = () => {
     setFormData(EMPTY_FORM);
     setEditingIndex(null);
+    setOriginalName(null);
     setEditorOpen(true);
   };
 
   const openEdit = (i: number) => {
     setFormData({ ...products[i] });
+    setOriginalName(products[i].name);
     setEditingIndex(i);
     setEditorOpen(true);
   };
@@ -541,30 +606,71 @@ function ProductsTab() {
   const closeEditor = () => {
     setEditorOpen(false);
     setEditingIndex(null);
+    setOriginalName(null);
     setFormData(EMPTY_FORM);
   };
 
-  const saveProduct = () => {
-    if (!formData.brand.trim() || !formData.name.trim()) return;
-    if (editingIndex !== null) {
-      setProducts((prev) =>
-        prev.map((p, i) => (i === editingIndex ? { ...formData } : p)),
-      );
-    } else {
-      setProducts((prev) => [...prev, { ...formData }]);
+  const toBackendProduct = (p: AdminProduct): PharmaceuticalProduct => ({
+    brand: p.brand,
+    name: p.name,
+    dosage: p.dosage,
+    priceEurope: p.price,
+    priceUk: 0,
+    packaging: p.packaging,
+    units: BigInt(Number.parseInt(p.count) || 0),
+    strength: p.strength,
+    manufacturedBy: p.manufacturedBy,
+    form: p.form,
+    packSize: p.packSize,
+    imageUrls: p.images.filter((img) => img.trim().length > 0),
+  });
+
+  const saveProduct = async () => {
+    if (!formData.brand.trim() || !formData.name.trim()) {
+      toast.error("Brand and Product Name are required");
+      return;
     }
-    closeEditor();
+    if (!actor) {
+      toast.error("Not connected to backend");
+      return;
+    }
+    setSaving(true);
+    try {
+      const backendProduct = toBackendProduct(formData);
+      if (editingIndex !== null && originalName) {
+        await actor.updateProduct(originalName, backendProduct);
+        toast.success("Product updated successfully");
+      } else {
+        await actor.addProduct(backendProduct);
+        toast.success("Product added successfully");
+      }
+      await fetchProducts();
+      closeEditor();
+    } catch (_e) {
+      toast.error(
+        "Failed to save product. Make sure you are logged in as admin.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const confirmDelete = (i: number) => {
     setDeleteConfirm(i);
   };
 
-  const doDelete = () => {
-    if (deleteConfirm !== null) {
-      setProducts((prev) => prev.filter((_, i) => i !== deleteConfirm));
-      setDeleteConfirm(null);
-      if (editorOpen && editingIndex === deleteConfirm) closeEditor();
+  const doDelete = async () => {
+    if (deleteConfirm !== null && actor) {
+      try {
+        await actor.deleteProduct(products[deleteConfirm].name);
+        toast.success("Product deleted");
+        setDeleteConfirm(null);
+        if (editorOpen && editingIndex === deleteConfirm) closeEditor();
+        await fetchProducts();
+      } catch (_e) {
+        toast.error("Failed to delete product");
+        setDeleteConfirm(null);
+      }
     }
   };
 
@@ -649,80 +755,92 @@ function ProductsTab() {
         </div>
       )}
 
+      {/* Loading state */}
+      {loadingProducts && (
+        <div
+          className="text-center py-8 text-muted-foreground text-sm"
+          data-ocid="products.loading_state"
+        >
+          Loading products...
+        </div>
+      )}
+
       {/* Product list */}
-      <div className="space-y-2" data-ocid="products.list">
-        {products.map((p, i) => (
-          <div
-            key={`${p.brand}-${p.name}-${p.dosage}-${i}`}
-            data-ocid={`products.item.${i + 1}`}
-            className="group flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
-          >
-            {/* Thumbnail */}
-            {p.images?.[0] ? (
-              <img
-                src={p.images[0]}
-                alt={p.name}
-                className="w-10 h-10 rounded object-cover flex-shrink-0 border border-border"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded bg-teal-100 flex items-center justify-center flex-shrink-0 border border-teal-200">
-                <span className="text-teal-600 text-xs font-bold">
-                  {p.brand.slice(0, 2).toUpperCase()}
-                </span>
-              </div>
-            )}
+      {!loadingProducts && (
+        <div className="space-y-2" data-ocid="products.list">
+          {products.map((p, i) => (
+            <div
+              key={`${p.brand}-${p.name}-${p.dosage}-${i}`}
+              data-ocid={`products.item.${i + 1}`}
+              className="group flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+            >
+              {/* Thumbnail */}
+              {p.images?.[0] ? (
+                <img
+                  src={p.images[0]}
+                  alt={p.name}
+                  className="w-10 h-10 rounded object-cover flex-shrink-0 border border-border"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded bg-teal-100 flex items-center justify-center flex-shrink-0 border border-teal-200">
+                  <span className="text-teal-600 text-xs font-bold">
+                    {p.brand.slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+              )}
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge
-                  variant="outline"
-                  className="text-xs font-semibold border-teal-300 text-teal-700"
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge
+                    variant="outline"
+                    className="text-xs font-semibold border-teal-300 text-teal-700"
+                  >
+                    {p.brand}
+                  </Badge>
+                  <span className="text-sm font-medium">
+                    {p.name} {p.dosage}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    €{p.price}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                  {p.form} · {p.strength}
+                </p>
+              </div>
+
+              <div className="flex gap-1.5 flex-shrink-0">
+                <Button
+                  data-ocid={`products.edit_button.${i + 1}`}
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 w-7 p-0 text-teal-600 hover:text-teal-800 hover:bg-teal-50"
+                  onClick={() => openEdit(i)}
                 >
-                  {p.brand}
-                </Badge>
-                <span className="text-sm font-medium">
-                  {p.name} {p.dosage}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  €{p.price}
-                </span>
+                  <Edit2 className="w-3.5 h-3.5" />
+                </Button>
+                <Button
+                  data-ocid={`products.delete_button.${i + 1}`}
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => confirmDelete(i)}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                {p.form} · {p.strength}
-              </p>
             </div>
-
-            <div className="flex gap-1.5 flex-shrink-0">
-              <Button
-                data-ocid={`products.edit_button.${i + 1}`}
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 text-teal-600 hover:text-teal-800 hover:bg-teal-50"
-                onClick={() => openEdit(i)}
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-              </Button>
-              <Button
-                data-ocid={`products.delete_button.${i + 1}`}
-                size="sm"
-                variant="ghost"
-                className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={() => confirmDelete(i)}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </Button>
+          ))}
+          {products.length === 0 && (
+            <div
+              data-ocid="products.empty_state"
+              className="text-center py-12 text-muted-foreground text-sm"
+            >
+              No products yet. Add the first one!
             </div>
-          </div>
-        ))}
-        {products.length === 0 && (
-          <div
-            data-ocid="products.empty_state"
-            className="text-center py-12 text-muted-foreground text-sm"
-          >
-            No products yet. Add the first one!
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Product Editor */}
       {editorOpen && (
@@ -808,8 +926,9 @@ function ProductsTab() {
                 size="sm"
                 className="bg-teal-600 hover:bg-teal-700 text-white"
                 onClick={saveProduct}
+                disabled={saving}
               >
-                Save Product
+                {saving ? "Saving..." : "Save Product"}
               </Button>
             </div>
           </CardContent>

@@ -20,11 +20,16 @@ export interface ShippingAddress {
     firstName: string;
 }
 export interface PharmaceuticalProduct {
+    imageUrls: Array<string>;
+    packSize: string;
     dosage: string;
+    form: string;
     name: string;
     priceEurope: number;
     priceUk: number;
+    strength: string;
     units: bigint;
+    manufacturedBy: string;
     brand: string;
     packaging: string;
 }
@@ -56,8 +61,9 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    addProduct(name: string, brand: string, dosage: string, priceEuros: number, priceUk: number, packaging: string, units: bigint): Promise<void>;
+    addProduct(product: PharmaceuticalProduct): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteProduct(name: string): Promise<void>;
     getAllOrders(adminPassword: string): Promise<Array<Order>>;
     getAllProducts(): Promise<Array<PharmaceuticalProduct>>;
     getAllUsers(adminPassword: string): Promise<Array<[Principal, UserProfile]>>;
@@ -71,4 +77,5 @@ export interface backendInterface {
     placeOrder(email: string, shippingAddress: ShippingAddress, items: Array<OrderItem>, subtotal: number, shipping: number, total: number): Promise<string>;
     registerUser(username: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateProduct(name: string, updatedProduct: PharmaceuticalProduct): Promise<void>;
 }
