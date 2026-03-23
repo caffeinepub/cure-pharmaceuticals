@@ -1,29 +1,22 @@
 # Cure Pharmaceuticals
 
 ## Current State
-The Admin Panel product editor manages products in local React component state only. Changes are never persisted to the backend. The main catalog (App.tsx) reads from a hardcoded static `brands` array and never fetches from the backend. The backend `PharmaceuticalProduct` type is missing fields for `strength`, `manufacturedBy`, `form`, `packSize`, and `images`.
+The admin panel product save (add/update) is broken. The Motoko backend uses `product.imageUrls.filter(...)` and `arr.sort()` directly on arrays, which are not valid Motoko methods on `[T]` types. This causes a compile error, so the deployed canister runs an older version of the code with a different API, causing all product save calls to fail.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Backend: Extended product model with fields: `strength`, `manufacturedBy`, `form`, `packSize`, `imageUrls` (array of up to 3 strings)
-- Backend: `updateProduct` function for admins to update product details
-- Backend: `deleteProduct` function for admins
-- Backend: `getAllProducts` returns the extended product model
-- Frontend App.tsx: Fetch all products from backend on load, group by brand, render dynamically
-- Frontend AdminPanel: Save product adds/edits by calling backend `addProduct` / `updateProduct`; delete calls `deleteProduct`
+- Nothing new
 
 ### Modify
-- Backend `addProduct`: Accept extended fields
-- Frontend product card: Use `imageUrls[0]` as primary image when present
+- Fix `addProduct`: replace `product.imageUrls.filter(...)` with a proper Motoko array filter using iterators
+- Fix `updateProduct`: same filter fix
+- Fix `getAllProducts`: replace `arr.sort()` with a proper sort call
 
 ### Remove
-- Hardcoded `brands` array from App.tsx (replaced by backend data)
-- Hardcoded product list from AdminPanel (replaced by backend fetch)
+- Nothing removed
 
 ## Implementation Plan
-1. Regenerate Motoko backend with extended product model and update/delete functions
-2. Update frontend:
-   - App.tsx: `useEffect` to `getAllProducts()`, group by brand, render dynamically
-   - AdminPanel: fetch products from backend, call `addProduct`/`updateProduct`/`deleteProduct` on save/delete
-   - Product card: show `imageUrls[0]` if present, fallback to default image
+1. Fix Motoko backend: use `Array.filter` or iterator `.filter().toArray()` for imageUrls filtering
+2. Fix `getAllProducts` sort to use valid Motoko API
+3. Validate and deploy

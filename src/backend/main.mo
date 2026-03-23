@@ -1,9 +1,7 @@
-import Iter "mo:core/Iter";
 import Time "mo:core/Time";
 import Text "mo:core/Text";
 import Float "mo:core/Float";
 import Order "mo:core/Order";
-import Array "mo:core/Array";
 import Map "mo:core/Map";
 import List "mo:core/List";
 import Runtime "mo:core/Runtime";
@@ -11,9 +9,9 @@ import Principal "mo:core/Principal";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   type UserProfile = {
     username : Text;
@@ -37,7 +35,7 @@ actor {
 
   module PharmaceuticalProduct {
     public func compare(p1 : PharmaceuticalProduct, p2 : PharmaceuticalProduct) : Order.Order {
-      Text.compare(p1.name, p2.name);
+      Text.compare(p1.name # p1.dosage, p2.name # p2.dosage);
     };
   };
 
@@ -84,6 +82,25 @@ actor {
 
   include MixinAuthorization(accessControlState);
 
+  // ── helpers ──────────────────────────────────────────────
+  func putProduct(key : Text, p : PharmaceuticalProduct) {
+    products.remove(key);
+    products.add(key, p);
+  };
+
+  func putOrder(key : Text, o : Order) {
+    orders.remove(key);
+    orders.add(key, o);
+  };
+
+  func productKey(p : PharmaceuticalProduct) : Text {
+    p.name # "||" # p.dosage;
+  };
+
+  func filterImageUrls(urls : [Text]) : [Text] {
+    urls.vals().filter(func(url : Text) : Bool { url != "" }).toArray();
+  };
+
   // User profile management
   public shared ({ caller }) func registerUser(username : Text) : async () {
     if (caller.isAnonymous()) {
@@ -120,6 +137,7 @@ actor {
     if (not userProfiles.containsKey(caller)) {
       Runtime.trap("User not registered");
     };
+    userProfiles.remove(caller);
     userProfiles.add(caller, profile);
   };
 
@@ -131,84 +149,59 @@ actor {
   };
 
   // Product catalog management
-  public shared ({ caller }) func addProduct(product : PharmaceuticalProduct) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can add products");
+  public shared func addProduct(adminPassword : Text, product : PharmaceuticalProduct) : async () {
+    if (not Text.equal(adminPassword, ADMIN_PASSWORD)) {
+      Runtime.trap("Unauthorized: Invalid admin password");
     };
 
-    if (products.containsKey(product.name)) {
-      Runtime.trap("Product already exists");
-    };
-
-    let validImageUrls = product.imageUrls.filter(func(url) { url != "" });
-
-    let newProduct = {
+    let newProduct : PharmaceuticalProduct = {
       product with
-      imageUrls = validImageUrls;
-      priceEurope = product.priceEurope;
-      priceUk = product.priceUk;
+      imageUrls = filterImageUrls(product.imageUrls);
     };
 
-    products.add(product.name, newProduct);
+    putProduct(productKey(newProduct), newProduct);
   };
 
-  public shared ({ caller }) func updateProduct(name : Text, updatedProduct : PharmaceuticalProduct) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can update products");
-    };
-    if (not products.containsKey(name)) {
-      Runtime.trap("Product does not exist");
-    };
-    let validName = updatedProduct.name.trim(#char ' ');
-    if (validName == "" or validName != name) {
-      Runtime.trap("Product name must remain unchanged and not be empty");
+  public shared func updateProduct(adminPassword : Text, key : Text, updatedProduct : PharmaceuticalProduct) : async () {
+    if (not Text.equal(adminPassword, ADMIN_PASSWORD)) {
+      Runtime.trap("Unauthorized: Invalid admin password");
     };
 
-    let validImageUrls = updatedProduct.imageUrls.filter(func(url) { url != "" });
-
-    let productToUpdate = {
+    let productToUpdate : PharmaceuticalProduct = {
       updatedProduct with
-      imageUrls = validImageUrls;
-      priceEurope = updatedProduct.priceEurope;
-      priceUk = updatedProduct.priceUk;
+      imageUrls = filterImageUrls(updatedProduct.imageUrls);
     };
 
-    products.add(name, productToUpdate);
+    products.remove(key);
+    putProduct(productKey(productToUpdate), productToUpdate);
   };
 
-  public query ({ caller }) func getProduct(name : Text) : async PharmaceuticalProduct {
-    switch (products.get(name)) {
+  public query func getProduct(key : Text) : async PharmaceuticalProduct {
+    switch (products.get(key)) {
       case (null) { Runtime.trap("Product does not exist") };
       case (?product) { product };
     };
   };
 
-  public shared ({ caller }) func deleteProduct(name : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can delete products");
+  public shared func deleteProduct(adminPassword : Text, key : Text) : async () {
+    if (not Text.equal(adminPassword, ADMIN_PASSWORD)) {
+      Runtime.trap("Unauthorized: Invalid admin password");
     };
-    if (not products.containsKey(name)) {
-      Runtime.trap("Product does not exist");
-    };
-    products.remove(name);
+    products.remove(key);
   };
 
-  public query ({ caller }) func getAllProducts() : async [PharmaceuticalProduct] {
-    products.values().toArray().sort();
+  public query func getAllProducts() : async [PharmaceuticalProduct] {
+    let arr = products.values().toArray();
+    arr.sort();
   };
 
-  public query ({ caller }) func getProductsByBrand(brand : Text) : async [PharmaceuticalProduct] {
-    let filteredProducts = products.values().filter(
-      func(product) {
-        Text.equal(product.brand, brand);
-      }
-    );
-    filteredProducts.toArray();
+  public query func getProductsByBrand(brand : Text) : async [PharmaceuticalProduct] {
+    products.values().filter(func(p : PharmaceuticalProduct) : Bool {
+      Text.equal(p.brand, brand);
+    }).toArray();
   };
 
   // Order management
-
-  // Place order function
   public shared ({ caller }) func placeOrder(email : Text, shippingAddress : ShippingAddress, items : [OrderItem], subtotal : Float, shipping : Float, total : Float) : async Text {
     if (caller.isAnonymous()) {
       Runtime.trap("Must be logged in to place order");
@@ -235,12 +228,11 @@ actor {
       createdAt = Time.now();
     };
 
-    orders.add(orderId, order);
+    putOrder(orderId, order);
 
     order.orderId;
   };
 
-  // Admin can view all orders using password
   public query func getAllOrders(adminPassword : Text) : async [Order] {
     if (not Text.equal(adminPassword, ADMIN_PASSWORD)) {
       Runtime.trap("Unauthorized: Invalid admin password");
@@ -248,7 +240,6 @@ actor {
     orders.values().toArray();
   };
 
-  // User can view their own orders - only requires being logged in and registered
   public query ({ caller }) func getMyOrders() : async [Order] {
     if (caller.isAnonymous()) {
       Runtime.trap("Must be logged in to view orders");

@@ -61,9 +61,9 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    addProduct(product: PharmaceuticalProduct): Promise<void>;
+    addProduct(adminPassword: string, product: PharmaceuticalProduct): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    deleteProduct(name: string): Promise<void>;
+    deleteProduct(adminPassword: string, name: string): Promise<void>;
     getAllOrders(adminPassword: string): Promise<Array<Order>>;
     getAllProducts(): Promise<Array<PharmaceuticalProduct>>;
     getAllUsers(adminPassword: string): Promise<Array<[Principal, UserProfile]>>;
@@ -77,5 +77,5 @@ export interface backendInterface {
     placeOrder(email: string, shippingAddress: ShippingAddress, items: Array<OrderItem>, subtotal: number, shipping: number, total: number): Promise<string>;
     registerUser(username: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    updateProduct(name: string, updatedProduct: PharmaceuticalProduct): Promise<void>;
+    updateProduct(adminPassword: string, name: string, updatedProduct: PharmaceuticalProduct): Promise<void>;
 }

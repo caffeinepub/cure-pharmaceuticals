@@ -60,9 +60,9 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
-  'addProduct' : ActorMethod<[PharmaceuticalProduct], undefined>,
+  'addProduct' : ActorMethod<[string, PharmaceuticalProduct], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'deleteProduct' : ActorMethod<[string], undefined>,
+  'deleteProduct' : ActorMethod<[string, string], undefined>,
   'getAllOrders' : ActorMethod<[string], Array<Order>>,
   'getAllProducts' : ActorMethod<[], Array<PharmaceuticalProduct>>,
   'getAllUsers' : ActorMethod<[string], Array<[Principal, UserProfile]>>,
@@ -79,7 +79,7 @@ export interface _SERVICE {
   >,
   'registerUser' : ActorMethod<[string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  'updateProduct' : ActorMethod<[string, PharmaceuticalProduct], undefined>,
+  'updateProduct' : ActorMethod<[string, string, PharmaceuticalProduct], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

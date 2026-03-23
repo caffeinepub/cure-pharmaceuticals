@@ -144,9 +144,9 @@ export enum UserRole {
 }
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    addProduct(product: PharmaceuticalProduct): Promise<void>;
+    addProduct(adminPassword: string, product: PharmaceuticalProduct): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    deleteProduct(name: string): Promise<void>;
+    deleteProduct(adminPassword: string, name: string): Promise<void>;
     getAllOrders(adminPassword: string): Promise<Array<Order>>;
     getAllProducts(): Promise<Array<PharmaceuticalProduct>>;
     getAllUsers(adminPassword: string): Promise<Array<[Principal, UserProfile]>>;
@@ -160,7 +160,7 @@ export interface backendInterface {
     placeOrder(email: string, shippingAddress: ShippingAddress, items: Array<OrderItem>, subtotal: number, shipping: number, total: number): Promise<string>;
     registerUser(username: string): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    updateProduct(name: string, updatedProduct: PharmaceuticalProduct): Promise<void>;
+    updateProduct(adminPassword: string, name: string, updatedProduct: PharmaceuticalProduct): Promise<void>;
 }
 import type { UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -179,17 +179,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async addProduct(arg0: PharmaceuticalProduct): Promise<void> {
+    async addProduct(arg0: string, arg1: PharmaceuticalProduct): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.addProduct(arg0);
+                const result = await this.actor.addProduct(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addProduct(arg0);
+            const result = await this.actor.addProduct(arg0, arg1);
             return result;
         }
     }
@@ -207,17 +207,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async deleteProduct(arg0: string): Promise<void> {
+    async deleteProduct(arg0: string, arg1: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteProduct(arg0);
+                const result = await this.actor.deleteProduct(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteProduct(arg0);
+            const result = await this.actor.deleteProduct(arg0, arg1);
             return result;
         }
     }
@@ -403,17 +403,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateProduct(arg0: string, arg1: PharmaceuticalProduct): Promise<void> {
+    async updateProduct(arg0: string, arg1: string, arg2: PharmaceuticalProduct): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateProduct(arg0, arg1);
+                const result = await this.actor.updateProduct(arg0, arg1, arg2);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateProduct(arg0, arg1);
+            const result = await this.actor.updateProduct(arg0, arg1, arg2);
             return result;
         }
     }

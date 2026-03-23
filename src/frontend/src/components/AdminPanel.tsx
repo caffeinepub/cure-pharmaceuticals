@@ -598,7 +598,7 @@ function ProductsTab() {
 
   const openEdit = (i: number) => {
     setFormData({ ...products[i] });
-    setOriginalName(products[i].name);
+    setOriginalName(`${products[i].name}||${products[i].dosage}`);
     setEditingIndex(i);
     setEditorOpen(true);
   };
@@ -638,10 +638,14 @@ function ProductsTab() {
     try {
       const backendProduct = toBackendProduct(formData);
       if (editingIndex !== null && originalName) {
-        await actor.updateProduct(originalName, backendProduct);
+        await actor.updateProduct(
+          "Alex@thomas2026",
+          originalName,
+          backendProduct,
+        );
         toast.success("Product updated successfully");
       } else {
-        await actor.addProduct(backendProduct);
+        await actor.addProduct("Alex@thomas2026", backendProduct);
         toast.success("Product added successfully");
       }
       await fetchProducts();
@@ -662,7 +666,10 @@ function ProductsTab() {
   const doDelete = async () => {
     if (deleteConfirm !== null && actor) {
       try {
-        await actor.deleteProduct(products[deleteConfirm].name);
+        await actor.deleteProduct(
+          "Alex@thomas2026",
+          `${products[deleteConfirm].name}||${products[deleteConfirm].dosage}`,
+        );
         toast.success("Product deleted");
         setDeleteConfirm(null);
         if (editorOpen && editingIndex === deleteConfirm) closeEditor();
