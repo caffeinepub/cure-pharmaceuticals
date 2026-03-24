@@ -94,10 +94,6 @@ actor {
     p.name # "||" # p.dosage;
   };
 
-  func filterImageUrls(urls : [Text]) : [Text] {
-    urls.filter(func(url : Text) : Bool { not Text.equal(url, "") });
-  };
-
   // User profile management
   public shared ({ caller }) func registerUser(username : Text) : async () {
     if (caller.isAnonymous()) {
@@ -151,9 +147,12 @@ actor {
       Runtime.trap("Unauthorized: Invalid admin password");
     };
 
+    let filteredUrls = product.imageUrls.filter(func(url : Text) : Bool {
+      not Text.equal(url, "")
+    });
     let newProduct : PharmaceuticalProduct = {
       product with
-      imageUrls = filterImageUrls(product.imageUrls);
+      imageUrls = filteredUrls;
     };
 
     putProduct(productKey(newProduct), newProduct);
@@ -164,9 +163,12 @@ actor {
       Runtime.trap("Unauthorized: Invalid admin password");
     };
 
+    let filteredUrls = updatedProduct.imageUrls.filter(func(url : Text) : Bool {
+      not Text.equal(url, "")
+    });
     let productToUpdate : PharmaceuticalProduct = {
       updatedProduct with
-      imageUrls = filterImageUrls(updatedProduct.imageUrls);
+      imageUrls = filteredUrls;
     };
 
     products.remove(key);
@@ -194,7 +196,9 @@ actor {
 
   public query func getProductsByBrand(brand : Text) : async [PharmaceuticalProduct] {
     let arr = products.values().toArray();
-    arr.filter(func(p : PharmaceuticalProduct) : Bool { Text.equal(p.brand, brand) });
+    arr.filter(func(p : PharmaceuticalProduct) : Bool {
+      Text.equal(p.brand, brand)
+    });
   };
 
   // Order management
@@ -245,6 +249,8 @@ actor {
     };
 
     let allOrders = orders.values().toArray();
-    allOrders.filter(func(order : Order) : Bool { Principal.equal(order.customerId, caller) });
+    allOrders.filter(func(order : Order) : Bool {
+      Principal.equal(order.customerId, caller)
+    });
   };
 };

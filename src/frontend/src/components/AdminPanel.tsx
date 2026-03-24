@@ -38,11 +38,10 @@ interface AdminProduct {
   dosage: string;
   price: number;
   packaging: string;
-  count: string;
-  strength: string;
-  manufacturedBy: string;
-  form: string;
   packSize: string;
+  strength: string;
+  manufacturer: string;
+  form: string;
   images: string[]; // image URLs, max 3
 }
 
@@ -71,9 +70,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "50mg",
     price: 55,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "50mg Sildenafil Citrate",
-    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    manufacturer: "Centurion Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -84,9 +82,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "100mg",
     price: 60,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "100mg Sildenafil Citrate",
-    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    manufacturer: "Centurion Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -97,9 +94,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "150mg",
     price: 65,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "150mg Sildenafil Citrate",
-    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    manufacturer: "Centurion Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -110,9 +106,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "200mg",
     price: 70,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "200mg Sildenafil Citrate",
-    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    manufacturer: "Centurion Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -123,9 +118,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "20mg",
     price: 55,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "20mg Tadalafil",
-    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    manufacturer: "Centurion Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -136,9 +130,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "40mg",
     price: 60,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "40mg Tadalafil",
-    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    manufacturer: "Centurion Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -149,9 +142,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "60mg",
     price: 65,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "60mg Tadalafil",
-    manufacturedBy: "Centurion Remedies Pvt. Ltd.",
+    manufacturer: "Centurion Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -162,9 +154,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "100mg",
     price: 55,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "100mg Sildenafil Citrate",
-    manufacturedBy: "Ajanta Pharma Ltd.",
+    manufacturer: "Ajanta Pharma Ltd.",
     form: "Film-Coated Tablet",
     packSize: "4 Tablets",
     images: [],
@@ -175,9 +166,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "100mg",
     price: 60,
     packaging: "1×7 Box",
-    count: "7 Sachets",
     strength: "100mg Sildenafil Citrate",
-    manufacturedBy: "Ajanta Pharma Ltd.",
+    manufacturer: "Ajanta Pharma Ltd.",
     form: "Oral Jelly Sachet",
     packSize: "7 Sachets",
     images: [],
@@ -188,9 +178,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "100mg",
     price: 50,
     packaging: "1×4 Strip",
-    count: "4 Tablets",
     strength: "100mg Sildenafil Citrate",
-    manufacturedBy: "Ajanta Pharma Ltd.",
+    manufacturer: "Ajanta Pharma Ltd.",
     form: "Chewable Tablet",
     packSize: "4 Tablets",
     images: [],
@@ -201,9 +190,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "160mg",
     price: 75,
     packaging: "4×4 Blister",
-    count: "16 Tablets",
     strength: "100mg Sildenafil + 60mg Dapoxetine",
-    manufacturedBy: "Ajanta Pharma Ltd.",
+    manufacturer: "Ajanta Pharma Ltd.",
     form: "Film-Coated Tablet",
     packSize: "4 Tablets",
     images: [],
@@ -214,9 +202,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "100mg",
     price: 55,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "100mg Sildenafil Citrate",
-    manufacturedBy: "Fortune Healthcare Pvt. Ltd.",
+    manufacturer: "Fortune Healthcare Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -227,9 +214,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "150mg",
     price: 65,
     packaging: "10×10 Blister",
-    count: "100 Tablets",
     strength: "150mg Sildenafil Citrate",
-    manufacturedBy: "Fortune Healthcare Pvt. Ltd.",
+    manufacturer: "Fortune Healthcare Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "10 Tablets",
     images: [],
@@ -240,9 +226,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "160mg",
     price: 75,
     packaging: "4×4 Blister",
-    count: "16 Tablets",
     strength: "100mg Sildenafil + 60mg Dapoxetine",
-    manufacturedBy: "Sunrise Remedies Pvt. Ltd.",
+    manufacturer: "Sunrise Remedies Pvt. Ltd.",
     form: "Film-Coated Tablet",
     packSize: "4 Tablets",
     images: [],
@@ -253,9 +238,8 @@ const _initialProducts: AdminProduct[] = [
     dosage: "Oral Jelly",
     price: 65,
     packaging: "1×7 Box",
-    count: "7 Sachets",
     strength: "100mg Sildenafil Citrate",
-    manufacturedBy: "Sunrise Remedies Pvt. Ltd.",
+    manufacturer: "Sunrise Remedies Pvt. Ltd.",
     form: "Oral Jelly Sachet",
     packSize: "7 Sachets",
     images: [],
@@ -514,11 +498,10 @@ const EMPTY_FORM: AdminProduct = {
   dosage: "",
   price: 0,
   packaging: "",
-  count: "",
-  strength: "",
-  manufacturedBy: "",
-  form: "",
   packSize: "",
+  strength: "",
+  manufacturer: "",
+  form: "",
   images: [],
 };
 
@@ -544,11 +527,10 @@ function ProductsTab() {
           dosage: p.dosage,
           price: p.priceEurope,
           packaging: p.packaging,
-          count: String(p.units),
-          strength: p.strength,
-          manufacturedBy: p.manufacturedBy,
-          form: p.form,
           packSize: p.packSize,
+          strength: p.strength,
+          manufacturer: p.manufacturedBy,
+          form: p.form,
           images: p.imageUrls,
         })),
       );
@@ -572,9 +554,8 @@ function ProductsTab() {
             dosage: p.dosage,
             price: p.priceEurope,
             packaging: p.packaging,
-            count: String(p.units),
             strength: p.strength,
-            manufacturedBy: p.manufacturedBy,
+            manufacturer: p.manufacturedBy,
             form: p.form,
             packSize: p.packSize,
             images: p.imageUrls,
@@ -617,9 +598,9 @@ function ProductsTab() {
     priceEurope: p.price,
     priceUk: 0,
     packaging: p.packaging,
-    units: BigInt(Number.parseInt(p.count) || 0),
+    units: BigInt(0),
     strength: p.strength,
-    manufacturedBy: p.manufacturedBy,
+    manufacturedBy: p.manufacturer,
     form: p.form,
     packSize: p.packSize,
     imageUrls: p.images.filter((img) => img.trim().length > 0),
@@ -853,59 +834,103 @@ function ProductsTab() {
       {editorOpen && (
         <Card
           data-ocid="products.panel"
-          className="border-teal-200 bg-teal-50/30 mt-4"
+          className="border-teal-200 bg-white mt-4 shadow-md"
         >
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-4 border-b border-teal-100">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">
-                {editingIndex !== null ? "Edit Product" : "Add New Product"}
-              </CardTitle>
+              <div>
+                <CardTitle className="text-lg text-teal-800">
+                  {editingIndex !== null ? "Edit Product" : "Add New Product"}
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Fill in all fields and paste image URLs below
+                </p>
+              </div>
               <Button
                 data-ocid="products.close_button"
                 size="sm"
                 variant="ghost"
-                className="h-7 w-7 p-0"
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
                 onClick={closeEditor}
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-5">
-            {/* Basic Info */}
+          <CardContent className="space-y-6 pt-5">
+            {/* Section: Product Identity */}
             <div>
-              <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-3">
-                Basic Information
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-4 w-1 bg-teal-500 rounded-full" />
+                <p className="text-xs font-bold text-teal-700 uppercase tracking-widest">
+                  Product Identity
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  {field("name", "Product Name")}
+                </div>
                 {field("brand", "Brand")}
-                {field("name", "Product Name")}
-                {field("dosage", "Dosage")}
-                {field("price", "Price (€)", "number")}
-                {field("packaging", "Packaging")}
-                {field("count", "Count")}
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Dosage / Variant
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. 100mg, Sachet"
+                    value={String(formData.dosage)}
+                    onChange={(e) =>
+                      setFormData((f) => ({ ...f, dosage: e.target.value }))
+                    }
+                    className="h-8 text-sm mt-1"
+                    data-ocid="products.input"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Description */}
+            {/* Section: Product Details */}
             <div>
-              <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-3">
-                Description
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-4 w-1 bg-teal-500 rounded-full" />
+                <p className="text-xs font-bold text-teal-700 uppercase tracking-widest">
+                  Product Details
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {field("strength", "Strength")}
-                {field("manufacturedBy", "Manufactured By")}
-                {field("form", "Form")}
+                {field("packaging", "Packaging")}
                 {field("packSize", "Pack Size")}
+                {field("manufacturer", "Manufacturer")}
+                {field("form", "Form")}
               </div>
             </div>
 
-            {/* Images */}
+            {/* Section: Pricing */}
             <div>
-              <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-3">
-                Product Images (up to 3) — paste image URLs
-              </p>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-4 w-1 bg-teal-500 rounded-full" />
+                <p className="text-xs font-bold text-teal-700 uppercase tracking-widest">
+                  Pricing
+                </p>
+              </div>
+              <div className="max-w-[160px]">
+                {field("price", "Price (€)", "number")}
+              </div>
+            </div>
+
+            {/* Section: Product Images */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-4 w-1 bg-teal-500 rounded-full" />
+                <p className="text-xs font-bold text-teal-700 uppercase tracking-widest">
+                  Product Images
+                </p>
+                <span className="text-xs text-muted-foreground">
+                  — paste image URLs, up to 3
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {([0, 1, 2] as const).map((slot) => (
                   <ImageUrlSlot
                     key={slot}
@@ -919,11 +944,12 @@ function ProductsTab() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2 justify-end pt-2 border-t border-teal-200">
+            <div className="flex gap-3 justify-end pt-3 border-t border-teal-100">
               <Button
                 data-ocid="products.cancel_button"
                 size="sm"
-                variant="ghost"
+                variant="outline"
+                className="border-teal-200 text-teal-700 hover:bg-teal-50"
                 onClick={closeEditor}
               >
                 Cancel
@@ -931,11 +957,15 @@ function ProductsTab() {
               <Button
                 data-ocid="products.save_button"
                 size="sm"
-                className="bg-teal-600 hover:bg-teal-700 text-white"
+                className="bg-teal-600 hover:bg-teal-700 text-white px-6"
                 onClick={saveProduct}
                 disabled={saving}
               >
-                {saving ? "Saving..." : "Save Product"}
+                {saving
+                  ? "Saving..."
+                  : editingIndex !== null
+                    ? "Update Product"
+                    : "Save Product"}
               </Button>
             </div>
           </CardContent>

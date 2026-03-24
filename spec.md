@@ -1,22 +1,21 @@
 # Cure Pharmaceuticals
 
 ## Current State
-The admin panel product save (add/update) is broken. The Motoko backend uses `product.imageUrls.filter(...)` and `arr.sort()` directly on arrays, which are not valid Motoko methods on `[T]` types. This causes a compile error, so the deployed canister runs an older version of the code with a different API, causing all product save calls to fail.
+The Admin Panel has a product editor with fields: brand, name, dosage, price, packaging, count, strength, manufacturedBy, form, packSize, and 3 image URL slots. The backend has persistent Motoko syntax bugs (`.filter()` and `.sort()` called directly on arrays) causing silent compile failures, which is why "Loading products..." never resolves and Save Product never works.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Nothing new
+- New cleaner product editor UI with fields: Name, Strength, Packaging, Pack Size, Brand, Manufacturer, Form, plus 3 image URL slots with live preview
 
 ### Modify
-- Fix `addProduct`: replace `product.imageUrls.filter(...)` with a proper Motoko array filter using iterators
-- Fix `updateProduct`: same filter fix
-- Fix `getAllProducts`: replace `arr.sort()` with a proper sort call
+- Fix backend Motoko syntax: replace all `arr.filter(...)` with `Array.filter(arr, ...)` and `arr.sort(...)` with `Array.sort(arr, ...)`, import `Array` from `mo:core/Array`
+- Remove `filterImageUrls` helper that used invalid `.filter()` syntax
+- Rebuild ProductsTab product editor panel with the new field set
 
 ### Remove
-- Nothing removed
+- Old product editor with confusing field layout
 
 ## Implementation Plan
-1. Fix Motoko backend: use `Array.filter` or iterator `.filter().toArray()` for imageUrls filtering
-2. Fix `getAllProducts` sort to use valid Motoko API
-3. Validate and deploy
+1. Fix backend: add `Array` import, replace all invalid array method calls
+2. Rebuild product editor UI in AdminPanel.tsx with fields: Name, Brand, Strength, Packaging, Pack Size, Manufacturer, Form, 3 image URL slots, Price (€) kept for cart functionality
