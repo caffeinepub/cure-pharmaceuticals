@@ -9,8 +9,6 @@ import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-
-
 actor {
   type UserProfile = {
     username : Text;
@@ -36,7 +34,6 @@ actor {
     Text.compare(p1.name # p1.dosage, p2.name # p2.dosage);
   };
 
-  // Order types
   type OrderItem = {
     productName : Text;
     price : Float;
@@ -79,7 +76,6 @@ actor {
 
   include MixinAuthorization(accessControlState);
 
-  // ── helpers ──────────────────────────────────────────────
   func putProduct(key : Text, p : PharmaceuticalProduct) {
     products.remove(key);
     products.add(key, p);
@@ -94,7 +90,6 @@ actor {
     p.name # "||" # p.dosage;
   };
 
-  // User profile management
   public shared ({ caller }) func registerUser(username : Text) : async () {
     if (caller.isAnonymous()) {
       Runtime.trap("Must be logged in to register");
@@ -141,7 +136,6 @@ actor {
     userProfiles.toArray();
   };
 
-  // Product catalog management
   public shared func addProduct(adminPassword : Text, product : PharmaceuticalProduct) : async () {
     if (not Text.equal(adminPassword, ADMIN_PASSWORD)) {
       Runtime.trap("Unauthorized: Invalid admin password");
@@ -201,7 +195,6 @@ actor {
     });
   };
 
-  // Order management
   public shared ({ caller }) func placeOrder(email : Text, shippingAddress : ShippingAddress, items : [OrderItem], subtotal : Float, shipping : Float, total : Float) : async Text {
     if (caller.isAnonymous()) {
       Runtime.trap("Must be logged in to place order");
